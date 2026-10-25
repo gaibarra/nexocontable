@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<nav class="public-navigation gradient-bg text-white">
+    <div class="public-nav-inner max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <a href="/" class="public-brand" aria-label="NexoContable, inicio">
+            <img src="{% static 'img/nexocontable-logo-light.svg' %}" alt="NexoContable" width="610" height="126" class="public-brand-logo">
+        </a>
+        <div class="public-nav-actions flex items-center gap-2 sm:gap-4">
+            <a href="{% url 'donar' %}" class="text-sm text-white/80 hover:text-white">💜 Donar</a>
+            <a href="{% url 'login' %}" class="text-sm text-white/80 hover:text-white">Iniciar sesión</a>
+            <a href="{% url 'registro' %}"
+                class="text-sm bg-white text-brand-700 px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-brand-50 transition">Registrarse</a>
+        </div>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+<div class="public-privacy-footer border-t border-slate-200 bg-white py-5 px-5 text-center text-xs text-slate-500"><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}">Aviso de privacidad</a><span class="mx-2" aria-hidden="true">·</span><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}#arco">Derechos ARCO</a></div>
+{% endblock %}

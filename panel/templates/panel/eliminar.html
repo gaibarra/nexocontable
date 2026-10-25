@@ -1,0 +1,4 @@
+{% extends 'panel/base.html' %}{% block content %}
+<section class="card form-card"><a href="{{ volver }}">← Cancelar y volver</a><h2 class="delete-heading">Confirmar eliminación</h2><p><strong>{{ objeto }}</strong> · Registro #{{ objeto.pk }}</p>
+{% if bloqueado %}<p class="notice error">{{ bloqueado }}</p>{% else %}<p class="notice">{{ advertencia }}</p><h3>Registros que se eliminarán</h3><ul>{% for modelo,total in resumen %}<li>{{ modelo }}: <strong>{{ total }}</strong></li>{% endfor %}</ul><p>Para confirmar, escribe <strong>{{ texto_confirmacion }}</strong>.</p><form method="post">{% csrf_token %}{{ form.as_p }}<div class="toolbar"><button class="button danger">Eliminar definitivamente</button><a class="button secondary" href="{{ volver }}">Cancelar</a></div></form>{% endif %}</section>
+{% endblock %}

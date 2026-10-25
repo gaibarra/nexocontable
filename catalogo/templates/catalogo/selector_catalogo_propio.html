@@ -1,0 +1,88 @@
+<p class="text-sm text-gray-500 mb-3">Estás usando tu catálogo propio. Confirma las sugerencias con un clic para habilitar esas cuentas y seleccionarlas para el manual.</p>
+<a href="{% url 'catalogo_cuentas' %}" class="inline-block text-sm text-blue-700 hover:underline mb-4">Revisar o completar vinculaciones</a>
+<div class="flex flex-wrap gap-2 mb-4" role="group" aria-label="Orden del catálogo">
+    <button type="button" data-catalog-view="propio" aria-controls="catalog-view-propio" aria-pressed="true"
+        class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-brand-600 text-white">Cuentas propias → SAT</button>
+    <button type="button" data-catalog-view="sat" aria-controls="catalog-view-sat" aria-pressed="false"
+        class="px-3 py-2 text-sm border border-gray-300 rounded-lg">SAT → Cuentas propias</button>
+</div>
+<fieldset id="catalog-view-propio" class="mb-4">
+    <legend class="text-sm font-medium text-gray-700 mb-2">Cuentas propias y código agrupador SAT</legend>
+    <div class="max-h-96 overflow-y-auto space-y-2">
+        {% for cuenta in cuentas %}
+            {% include "catalogo/seleccion_cuenta.html" with mostrar_sat=True %}
+        {% endfor %}
+    </div>
+</fieldset>
+<fieldset id="catalog-view-sat" class="mb-4" hidden disabled>
+    <legend class="text-sm font-medium text-gray-700 mb-2">Catálogo SAT y cuentas propias vinculadas</legend>
+    <p class="text-xs text-gray-500 mb-2">Se muestra todo el catálogo SAT. Selecciona a la derecha las cuentas propias que incluirás en el manual.</p>
+    <div class="max-h-96 overflow-auto border border-gray-200 rounded-lg">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th scope="col" class="p-3 w-2/5">Código agrupador SAT</th>
+                    <th scope="col" class="p-3">Cuentas propias vinculadas</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for grupo in grupos_sat %}
+                <tr>
+                    <th scope="row" class="p-3 align-top font-normal">
+                        <span class="block font-mono font-medium">{{ grupo.codigo.codigoagrupador }}</span>
+                        <span class="text-gray-600">{{ grupo.codigo.nombre }}</span>
+                    </th>
+                    <td class="p-2 align-top" data-sat-target="{{ grupo.codigo.codigoagrupador }}">
+                        {% for cuenta in grupo.cuentas %}
+                            {% include "catalogo/seleccion_cuenta.html" with mostrar_sat=False %}
+                        {% empty %}
+                            <span data-sat-empty class="block p-2 text-xs text-gray-400">Sin cuentas propias vinculadas</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if cuentas_sin_vinculo %}
+    <div data-unlinked-section class="mt-3 p-3 border border-red-200 rounded-lg">
+        <p class="font-medium text-sm text-red-700">Cuentas propias sin vinculación SAT (<span data-unlinked-count>{{ cuentas_sin_vinculo|length }}</span>)</p>
+        <div data-unlinked-list class="max-h-40 overflow-y-auto mt-2">
+            {% for cuenta in cuentas_sin_vinculo %}
+                {% include "catalogo/seleccion_cuenta.html" with mostrar_sat=False %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</fieldset>
+<script>
+    (() => {
+        const form = document.getElementById('manual-generation-form');
+        const buttons = form.querySelectorAll('[data-catalog-view]');
+        const panels = {
+            propio: document.getElementById('catalog-view-propio'),
+            sat: document.getElementById('catalog-view-sat')
+        };
+        buttons.forEach(button => button.addEventListener('click', () => {
+            const view = button.dataset.catalogView;
+            Object.entries(panels).forEach(([name, panel]) => {
+                panel.hidden = name !== view;
+                panel.disabled = name !== view;
+            });
+            buttons.forEach(item => {
+                const active = item === button;
+                item.setAttribute('aria-pressed', String(active));
+                item.classList.toggle('bg-brand-600', active);
+                item.classList.toggle('text-white', active);
+            });
+        }));
+        // Conserva la selección al invertir el orden; solo el panel visible se envía.
+        form.addEventListener('change', event => {
+            const input = event.target;
+            if (!input.matches('input[data-account-id]')) return;
+            form.querySelectorAll('input[data-account-id]').forEach(other => {
+                if (other.value === input.value) other.checked = input.checked;
+            });
+        });
+    })();
+</script>

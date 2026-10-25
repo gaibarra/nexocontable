@@ -1,0 +1,4 @@
+{% extends 'panel/base.html' %}{% load panel_acciones %}{% block content %}
+<div class="toolbar"><a href="{{ volver }}">← Volver a la lista</a>{% acciones tipo registro %}</div>
+<section class="card form-card">{% if solo_lectura %}<p class="notice">Registro de consulta. El historial de actividad, consumo de IA y pagos de Mercado Pago se conserva sin modificaciones manuales.</p>{% endif %}<dl class="record-fields">{% for etiqueta,valor in campos %}<dt>{{ etiqueta }}</dt><dd>{{ valor|linebreaksbr }}</dd>{% endfor %}</dl></section>
+{% endblock %}

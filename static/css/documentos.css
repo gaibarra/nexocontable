@@ -1,0 +1,129 @@
+.document-brand { display: flex; gap: 24px; padding-bottom: 20px; border-bottom: 3px solid var(--document-accent, #1a365d); color: #172b45; }
+.document-brand-block { flex: 1; min-width: 0; }
+.document-logo { display: block; width: auto; max-width: min(180px, 100%); height: auto; max-height: 76px; object-fit: contain; object-position: left center; margin-bottom: 12px; }
+.document-role { font: 600 10px/1.4 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .1em; color: #64748b; margin-bottom: 6px; }
+.document-brand-name { font: 600 19px/1.3 'Outfit', sans-serif; overflow-wrap: anywhere; }
+.document-brand-data { margin-top: 10px; font: 12px/1.6 'Inter', sans-serif; color: #52657a; }
+.document-brand-data div { margin-top: 3px; overflow-wrap: anywhere; }
+.document-brand-data dt, .document-brand-data dd { display: inline; }
+.document-brand-data dt { font-weight: 600; }
+.document-company { margin-top: 20px; font-size: 12px; color: #52657a; overflow-wrap: anywhere; }
+.document-title { color: #172b45; font-size: 28px; line-height: 1.2; font-weight: 600; margin-top: 12px; overflow-wrap: anywhere; }
+.document-paper { padding: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 16px; }
+.document-running-header { display: none; }
+.brand-settings { max-width: 1200px; margin: 0 auto; }
+.brand-settings-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; }
+.brand-settings-form { padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background: white; }
+.brand-field { margin-bottom: 20px; }
+.brand-field > label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+.brand-field input[type=file] { font-size: 13px; width: 100%; }
+.brand-field input[type=file]::file-selector-button { background: #edf5fb; border: 0; padding: 12px; border-radius: 8px; color: #1a365d; margin-right: 8px; }
+.brand-field input[type=checkbox] { margin-right: 6px; width: 18px; height: 18px; vertical-align: middle; }
+.brand-field input:not([type=checkbox]), .brand-field select { max-width: 100%; min-height: 44px; }
+.brand-field div[id] label { display: flex; align-items: center; min-height: 36px; font-size: 13px; }
+.brand-field-help { font-size: 11px; line-height: 1.65; color: #64748b; margin-top: 7px; }
+.brand-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.brand-preview { align-self: start; position: sticky; top: 20px; min-width: 0; }
+.brand-preview-paper { background: white; padding: 28px; border: 1px solid #dce5ef; box-shadow: 0 8px 32px #172b4509; border-radius: 4px; }
+.preview-lines { display: grid; gap: 12px; margin-top: 30px; }
+.preview-lines span { height: 8px; border-radius: 4px; background: #f1f5f9; }
+.preview-lines span:last-child { width: 60%; }
+.document-brand-compact { align-items: center; padding-bottom: 5mm; gap: 8mm; }
+.document-brand-compact .document-brand-block { display: flex; align-items: center; gap: 3mm; }
+.document-brand-compact .document-logo { max-width: 28mm; max-height: 9mm; margin: 0; }
+.document-brand-compact .document-brand-name { font-size: 9pt; line-height: 1.2; max-height: 15mm; overflow: hidden; }
+@media (max-width: 1050px) { .brand-settings-grid { grid-template-columns: minmax(0, 1fr); } .brand-preview { position: static; order: -1; } }
+@media (max-width: 639px) {
+    .brand-settings-form, .brand-preview-paper, .document-paper { padding: 20px; }
+    .document-brand { flex-direction: column; gap: 20px; }
+    .document-brand-name { font-size: 18px; }
+    .document-title { font-size: 25px; }
+    .brand-form-actions { flex-direction: column; }
+}
+@media print {
+    @page { size: A4; margin: 15mm 18mm 20mm; }
+    html, body, .app-shell, .app-main, .app-content { display: block !important; overflow: visible !important; min-height: 0 !important; height: auto !important; }
+    .document-layout > thead { display: table-header-group; break-inside: avoid; }
+    .document-layout > tbody { display: table-row-group; }
+    .document-layout > tbody > tr { break-inside: auto; }
+    .document-running-header { display: block; position: static; height: auto; padding-bottom: 5mm; background: white; }
+    .document-brand { flex-direction: row; break-inside: avoid; }
+    .document-brand-compact { min-height: 14mm; height: auto; padding-bottom: 3mm; }
+    .document-brand-compact .document-brand-block { max-height: 20mm; overflow: hidden; }
+    .document-brand-block { flex: 1 1 0; }
+    .document-paper { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+    .document-paper > .document-brand { padding-bottom: 5mm; }
+    .document-title { font-size: 20pt; }
+    .document-brand-data { font-size: 9pt; }
+    .document-logo { max-height: 18mm; max-width: 40mm; }
+    .document-company { font-size: 9pt; }
+    .document-paper .prose { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 639px) {
+    .organization-actions { flex-wrap: wrap; }
+    .organization-actions .org-primary { flex-basis: 100%; }
+    .organization-actions .org-secondary { flex: 1; }
+}
+.brand-field input[type=color] { width: 88px; height: 48px; padding: 4px; cursor: pointer; }
+.brand-field input[type=color]:disabled { opacity: .5; cursor: default; }
+
+.document-layout { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.document-layout > thead > tr > td, .document-layout > tbody > tr > td { padding: 0; border: 0; vertical-align: top; }
+@media screen { .document-layout > thead { display: none; } }
+
+@media print {
+    .document-paper .prose p { orphans: 3; widows: 3; }
+    .document-paper .prose h1, .document-paper .prose h2, .document-paper .prose h3 { break-after: avoid; page-break-after: avoid; }
+}
+/* Identidad única, con datos en línea y sin espacio reservado para logos ausentes. */
+.document-brand { gap: 20px; padding-bottom: 10px; border-bottom-width: 2px; }
+.document-brand-block { display: flex; align-items: center; gap: 12px; }
+.document-brand-text { min-width: 0; flex: 1; }
+.document-logo { max-width: 110px; max-height: 48px; margin: 0; flex-shrink: 0; }
+.document-role { margin-bottom: 3px; font-size: 9px; }
+.document-brand-name { font-size: 17px; }
+.document-brand-data { margin-top: 4px; font-size: 11px; line-height: 1.4; }
+.document-brand-data div { display: inline; margin: 0; }
+.document-brand-data div + div::before { content: ' · '; }
+.document-title { margin-top: 14px; font-size: 25px; }
+.document-scope { font-size: 12px; color: #52657a; margin-bottom: 12px; }
+@media print {
+    .document-brand-screen { display: none; }
+    .document-running-header { padding-bottom: 3mm; }
+    .document-brand-compact { min-height: 0; padding-bottom: 2mm; gap: 6mm; }
+    .document-brand-compact .document-brand-block { max-height: none; overflow: visible; }
+    .document-brand-compact .document-brand-name { max-height: none; overflow: visible; font-size: 11pt; }
+    .document-brand-compact .document-brand-data { font-size: 8pt; line-height: 1.3; }
+    .document-brand-compact .document-logo { max-width: 26mm; max-height: 10mm; }
+    .document-title { margin-top: 0; font-size: 18pt; }
+    .document-paper .prose h1 { font-size: 17pt; padding-bottom: 2mm; margin-bottom: 3mm; }
+    .document-paper .prose h2 { font-size: 14pt; margin-top: 4mm; margin-bottom: 2mm; }
+    .document-paper .prose p { margin-bottom: 3mm; }
+}
+/* Las normas conservan columnas legibles aunque la explicación sea extensa. */
+.document-paper .prose table th, .document-paper .prose table td {
+    overflow-wrap: break-word; word-break: normal; vertical-align: top;
+}
+.document-paper .prose .document-standards-table { width: 100%; table-layout: fixed; }
+.document-paper .prose .document-standards-table th,
+.document-paper .prose .document-standards-table td { padding: 9px 10px; }
+.document-paper .prose .document-standards-table th { letter-spacing: .02em; }
+.document-paper .prose .document-standards-table :is(th, td):first-child {
+    overflow-wrap: normal; word-break: normal;
+}
+@media print {
+    @page { size: A4; margin: 15mm 12mm 18mm; }
+    .app-content { padding: 0 !important; margin: 0 !important; }
+    .document-paper .prose { overflow-wrap: break-word; }
+    .document-paper .prose .document-standards-table th,
+    .document-paper .prose .document-standards-table td { padding: 2.5mm 2mm; font-size: 9pt; line-height: 1.35; }
+    .document-paper .prose .document-standards-table th { font-size: 8pt; }
+    .document-paper .prose .document-standards-table :is(th, td):first-child { white-space: nowrap; }
+}
+.document-table-scroll { max-width: 100%; overflow-x: auto; }
+@media screen { .document-paper .prose .document-standards-table { min-width: 620px; } }
+@media print {
+    .document-table-scroll { overflow: visible; }
+    .document-paper .prose .document-standards-table { min-width: 0; }
+}

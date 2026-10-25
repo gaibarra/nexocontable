@@ -1,0 +1,54 @@
+{% extends "base_app.html" %}
+{% load markdown_filters static %}
+{% block title %}{{ manual.titulo }} — {{ presentacion.empresa_nombre }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/documentos.css' %}?v=3">{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto print:max-w-none">
+    {% include "catalogo/reporte_ia.html" with es_detalle=True %}
+    <div class="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6 no-print">
+        <div class="min-w-0">
+            <a href="{% url 'generar_manual' %}" class="text-brand-600 text-sm hover:underline">← Volver a manuales</a>
+            <h1 class="text-2xl font-bold mt-2">{{ manual.titulo }}</h1>
+            <p class="text-gray-500 text-sm mt-2">{{ manual.fecha_creacion|date:"d/M/Y H:i" }} · {% if manual.aprobado %}Aprobado · Presentación conservada{% else %}Pendiente de aprobación{% endif %}</p>
+            {% if ultimo_cambio_presentacion %}<p class="text-xs text-gray-500 mt-2">Presentación actualizada el {{ ultimo_cambio_presentacion.fecha|date:"d/m/Y H:i" }}{% if ultimo_cambio_presentacion.autor %} por {{ ultimo_cambio_presentacion.autor.get_full_name|default:ultimo_cambio_presentacion.autor.username }}{% endif %}.</p>{% endif %}
+        </div>
+        <div class="flex flex-wrap gap-2 no-print">
+            <a href="{% url 'exportar_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Exportar Word</a>
+            <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold">Imprimir / PDF</button>
+            <a href="{% url 'editar_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Editar</a>
+            {% if puede_personalizar %}
+                {% if manual.aprobado %}
+                <a href="{% url 'actualizar_presentacion_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Actualizar presentación</a>
+                {% else %}
+                <form method="post" action="{% url 'aprobar_manual' manual.pk %}">{% csrf_token %}<button class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm">Aprobar</button></form>
+                {% endif %}
+                <a href="{% url 'presentacion_empresa' manual.tenant_id %}" class="text-brand-600 px-3 py-2 text-sm">Logos y datos</a>
+            {% endif %}
+        </div>
+    </div>
+    <table class="document-layout" role="presentation">
+        <thead><tr><td><div class="document-running-header">{% include "documentos/encabezado.html" with compacto=True %}</div></td></tr></thead>
+        <tbody><tr><td>
+    <article class="document-paper">
+        <div class="document-brand-screen">{% include "documentos/encabezado.html" %}</div>
+        {% if presentacion.bloques|length == 1 and presentacion.bloques.0.rol == 'Elaborado por' %}<p class="document-company">Empresa: {{ presentacion.empresa_nombre }}</p>{% endif %}
+        <h2 class="document-title">{{ composicion_documento.titulo }}</h2>
+        <p class="text-xs text-gray-500 mt-2 mb-3">{{ manual.fecha_creacion|date:"d/m/Y" }} · {% if manual.aprobado %}Aprobado{% else %}Pendiente de aprobación{% endif %}</p>
+        {% if composicion_documento.alcance %}<p class="document-scope">{% for cuenta in composicion_documento.alcance %}{{ cuenta.clave }} — {{ cuenta.descripcion }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+        <div class="prose prose-lg max-w-none print:prose-sm">{{ composicion_documento.contenido_html|safe }}</div>
+    </article>
+        </td></tr></tbody>
+    </table>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+{% if imprimir %}
+<script>
+window.addEventListener('load', async () => {
+    if (document.fonts) await document.fonts.ready;
+    await Promise.all(Array.from(document.querySelectorAll('.document-logo')).map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()));
+    window.print();
+});
+</script>
+{% endif %}
+{% endblock %}

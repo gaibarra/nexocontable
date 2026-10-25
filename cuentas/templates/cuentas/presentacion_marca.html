@@ -1,0 +1,55 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}{{ titulo }} — NexoContable{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/documentos.css' %}?v=3">{% endblock %}
+{% block content %}
+<div class="brand-settings">
+    <header class="mb-6">
+        <p class="text-xs font-semibold text-brand-600 uppercase tracking-widest mb-2">IDENTIDAD PROFESIONAL</p>
+        <h1 class="text-3xl font-bold">{{ titulo }}</h1>
+        {% if es_despacho %}
+        <p class="text-sm text-gray-500 mt-2">Tu nombre y logo en los manuales de las empresas de las que eres titular. Si colaboras con otro despacho, sus manuales conservan la identidad de ese despacho. Publica los datos de contacto que quieras compartir con tus clientes.</p>
+        {% else %}
+        <p class="text-sm text-gray-500 mt-2">{{ empresa.nombre }} · Elige cómo se presenta esta empresa en sus manuales.</p>
+        <a href="{% url 'editar_tenant' empresa.pk %}" class="inline-flex items-center min-h-11 text-sm text-brand-600 underline mt-2">Editar nombre, RFC y datos generales de la empresa →</a>
+        {% endif %}
+    </header>
+    <div class="brand-settings-grid">
+        <form method="post" enctype="multipart/form-data" class="brand-settings-form">
+            {% csrf_token %}
+            {{ form.logo_previo }}
+            {% if form.non_field_errors %}<div role="alert" class="text-red-700 mb-4">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form.visible_fields %}
+            <div class="brand-field {% if field.name == 'quitar_logo' or field.name == 'usar_color_despacho' %}brand-check-field{% endif %}">
+                {% if field.name == 'quitar_logo' or field.name == 'usar_color_despacho' %}
+                <label for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+                {% else %}
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                {{ field }}
+                {% endif %}
+                {% if field.name == 'archivo_logo' %}<p class="brand-field-help">PNG o JPG, máximo 2 MB y 4096 × 4096 píxeles. Usa una imagen nítida; conservaremos sus proporciones. Puedes revisar el logo antes de guardar.</p>{% endif %}
+                {% if field.name == 'color' %}<p class="brand-field-help">{% if es_despacho %}Elige el color de tu despacho para la línea del encabezado y los títulos.{% else %}Puedes conservar el color del despacho o elegir uno para esta empresa.{% endif %}</p>{% endif %}
+                {% if field.errors %}<div class="text-red-700 text-sm mt-1" role="alert">{{ field.errors }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            <div class="brand-form-actions">
+                <button type="submit" name="accion" value="preview" class="org-secondary">Ver vista previa</button>
+                <button type="submit" name="accion" value="guardar" class="org-primary">Guardar presentación</button>
+            </div>
+            <p class="brand-field-help mt-4">Los borradores se actualizan al guardar. Los manuales aprobados conservan su presentación hasta que elijas actualizarla. Este cambio no consume IA.</p>
+        </form>
+        <aside class="brand-preview" aria-label="Vista previa del encabezado">
+            <p class="text-xs uppercase tracking-widest font-semibold text-gray-500 mb-4">VISTA PREVIA · {% if vista_previa %}CAMBIOS POR GUARDAR{% else %}EJEMPLO DE PRESENTACIÓN{% endif %}</p>
+            <div class="brand-preview-paper">
+                {% include "documentos/encabezado.html" %}
+                <p class="document-company">Empresa: {{ presentacion.empresa_nombre }}</p>
+                <h2 class="document-title">Manual de políticas contables</h2>
+                <p class="text-sm text-gray-500 mt-4 leading-relaxed">Así se verá la identidad en tus documentos. Las políticas y procedimientos del manual se presentarán a continuación.</p>
+                <div class="preview-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}<script src="{% static 'js/marca_config.js' %}" defer></script>{% endblock %}

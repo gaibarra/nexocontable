@@ -1,0 +1,16 @@
+<details class="ia-summary no-print" {% if expandir_resumen_ia %}open{% endif %}>
+    <summary class="ia-summary-heading">
+        <h2 id="ia-summary-title">Tu uso de IA en todas tus organizaciones</h2>
+        <p>{% if resumen_ia.tokens != None %}{{ resumen_ia.tokens|floatformat:"0g" }} tokens registrados{% elif resumen_ia.registros %}Consumo pendiente de informar{% else %}0 tokens registrados{% endif %} · {{ resumen_ia.manuales|default:0 }} manual{{ resumen_ia.manuales|pluralize:"es" }} preparado{{ resumen_ia.manuales|pluralize:"s" }}</p>
+    </summary>
+    <p class="ia-data-note">Acumulado personal de tus generaciones en todas tus organizaciones{% if resumen_ia.desde %}, desde el {{ resumen_ia.desde|date:"d/m/Y" }}{% endif %}. Los tokens son las pequeñas partes de texto que la IA procesa para leer y redactar.</p>
+    <div class="ia-summary-stats">
+        <div><strong>{% if resumen_ia.tokens != None %}{{ resumen_ia.tokens|floatformat:"0g" }}{% elif resumen_ia.registros %}Sin dato{% else %}0{% endif %}</strong><span>Tokens registrados</span></div>
+        <div><strong>{{ resumen_ia.manuales|default:0 }}</strong><span>Manuales preparados</span></div>
+        <div><strong>{{ resumen_ia.organizaciones|default:0 }}</strong><span>Organizaciones atendidas</span></div>
+    </div>
+    <p class="ia-explanation">Cada consulta de inteligencia artificial tiene un costo para el proyecto. El valor para tu despacho está en convertir estos borradores, con tu revisión y experiencia, en políticas y procedimientos especializados para cada empresa.</p>
+    <div class="ia-value-note"><strong>De la generación al servicio profesional</strong><p>Revisa el contenido, adáptalo a la operación de tu cliente y entrégalo como parte de tu servicio contable. Así aprovechas la IA para dedicar más atención al análisis y al acompañamiento de tus empresas.</p></div>
+    <p class="ia-data-note">{% if resumen_ia.sin_dato %}Hay {{ resumen_ia.sin_dato }} {% if resumen_ia.sin_dato == 1 %}generación{% else %}generaciones{% endif %} con consumo no informado o parcial. {% endif %}El registro comienza con esta función; los manuales anteriores no se incluyen. El acumulado contempla los intentos con consumo informado y se conserva aunque elimines un manual.</p>
+    <div class="ia-support"><p>El acceso sigue siendo gratuito. Este reporte es informativo y no representa un cobro.</p><a href="{% url 'donar' %}">Apoyar el acceso a la IA →</a></div>
+</details>

@@ -1,0 +1,12 @@
+<div class="document-brand {% if compacto %}document-brand-compact{% endif %}" style="--document-accent: {{ presentacion.color }}">
+    {% for bloque in presentacion.bloques %}
+    <div class="document-brand-block">
+        {% if bloque.logo_src %}<img src="{{ bloque.logo_src }}" alt="Logo de {{ bloque.nombre }}" class="document-logo">{% endif %}
+        <div class="document-brand-text">
+            {% if presentacion.bloques|length > 1 %}<p class="document-role">{{ bloque.rol }}</p>{% endif %}
+            <p class="document-brand-name">{{ bloque.nombre }}</p>
+            <dl class="document-brand-data">{% for linea in bloque.lineas %}<div><dt>{{ linea.etiqueta }}:</dt> <dd>{{ linea.valor }}</dd></div>{% endfor %}</dl>
+        </div>
+    </div>
+    {% endfor %}
+</div>

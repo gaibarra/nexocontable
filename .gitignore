@@ -1,0 +1,66 @@
+# ======================================
+# Manual Contable AI - .gitignore
+# ======================================
+
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Variables de entorno (NUNCA subir)
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_collected/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Migraciones (opcional, descomenta si no quieres rastrearlas)
+# */migrations/
+
+# Logos privados de documentos
+private_media/
+
+# Procesos locales del panel
+panel.sock
+panel.pid
+.panel-start.lock

@@ -1,0 +1,19 @@
+{{ opciones_sat_modal|json_script:"opciones-sat-modal" }}
+<style>
+    #modal-vincular-sat { border: 0; border-radius: 1rem; padding: 1.5rem; width: min(38rem, calc(100% - 2rem)); max-height: 90vh; overflow: auto; }
+    #modal-vincular-sat::backdrop { background: rgba(15, 23, 42, 0.5); }
+</style>
+<dialog id="modal-vincular-sat" aria-labelledby="modal-vincular-titulo">
+    <h2 id="modal-vincular-titulo" class="text-xl font-bold">Vincular cuenta al SAT</h2>
+    <p data-modal-cuenta class="mt-2 text-sm text-gray-600"></p>
+    <label for="buscar-sat-modal" class="block mt-4 text-sm font-medium">Buscar por código o nombre</label>
+    <input id="buscar-sat-modal" type="search" autofocus autocomplete="off" placeholder="Ejemplo: 101 o Caja"
+        class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
+    <label for="codigo-sat-modal" class="block mt-3 text-sm font-medium">Selecciona el código agrupador SAT</label>
+    <select id="codigo-sat-modal" size="8" class="mt-1 w-full border border-gray-300 rounded-lg p-2"></select>
+    <p data-modal-feedback class="mt-2 text-sm text-gray-600" role="status" aria-live="polite">Busca y selecciona un código SAT para continuar.</p>
+    <div class="flex justify-end gap-3 mt-5">
+        <button type="button" data-modal-cancelar class="px-4 py-2 border rounded-lg">Cancelar</button>
+        <button type="button" data-modal-guardar disabled class="px-4 py-2 rounded-lg gradient-bg text-white disabled:opacity-50 disabled:cursor-not-allowed">Guardar vinculación</button>
+    </div>
+</dialog>

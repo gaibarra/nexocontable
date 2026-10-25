@@ -1,0 +1,70 @@
+{% extends "base_public.html" %}
+{% block title %}Apoyar el proyecto — Manual Contable AI{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-0 py-8">
+    <div class="text-center mb-10">
+        <div class="text-6xl mb-4">💜</div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">Apoya el proyecto</h1>
+        <p class="text-gray-500 text-lg max-w-lg mx-auto leading-relaxed">
+            Manual Contable AI es <strong>gratuito</strong> para toda la comunidad contable.
+            Tu donativo ayuda a mantener los servidores y el acceso a la IA.
+        </p>
+    </div>
+
+    {% if total_donantes > 0 %}
+    <div class="flex justify-center gap-8 mb-10">
+        <div class="text-center">
+            <p class="text-2xl font-bold text-brand-600">{{ total_donantes }}</p>
+            <p class="text-sm text-gray-500">Colaboradores</p>
+        </div>
+        <div class="text-center">
+            <p class="text-2xl font-bold text-green-600">${{ total_recaudado|floatformat:0 }}</p>
+            <p class="text-sm text-gray-500">Recaudado</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" class="bg-white rounded-2xl shadow-lg p-5 sm:p-8">
+        {% csrf_token %}
+        <div class="mb-5">{% include "legal/resumen.html" %}</div>
+        <p class="text-xs text-slate-600 leading-relaxed mb-5">Al continuar, solicitas el procesamiento de tu donativo y consientes el tratamiento necesario de sus datos de identificación y operación. El pago se realiza en Mercado Pago, conforme a su política. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#datos">Consulta el aviso de privacidad</a> y ejerce tus derechos en <a class="underline text-brand-700" href="mailto:{{ privacidad.correo }}">{{ privacidad.correo }}</a>.</p>
+
+        <h2 class="font-semibold text-gray-900 mb-4">Selecciona un monto (MXN)</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            {% for monto in montos_sugeridos %}
+            <label class="relative cursor-pointer">
+                <input type="radio" name="monto" value="{{ monto }}" class="sr-only peer" {% if monto == monto_default %}checked{% endif %}>
+                <div class="p-4 text-center rounded-xl border-2 border-gray-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 hover:border-brand-300 transition">
+                    <span class="text-2xl font-bold text-gray-900">${{ monto }}</span>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">O escribe otro monto:</label>
+            <div class="relative">
+                <span class="absolute left-4 top-3 text-gray-400 font-medium">$</span>
+                <input type="number" name="monto_custom" min="10" step="1" placeholder="Otro monto"
+                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+            </div>
+        </div>
+
+        <button type="submit"
+            class="w-full gradient-bg text-white py-4 rounded-xl font-bold text-lg hover:opacity-90 transition shadow-lg">
+            Donar con Mercado Pago 💳
+        </button>
+        <p class="text-xs text-gray-400 text-center mt-3">Pago seguro vía Mercado Pago. Se aceptan tarjetas,
+            transferencia y OXXO.</p>
+    </form>
+
+    <div class="mt-8 bg-gray-50 rounded-xl p-6 text-center">
+        <p class="text-sm text-gray-500">
+            🔒 Tu donativo es voluntario y no genera obligación fiscal ni recurrencia.<br>
+            Los fondos se destinan a servidores, API de IA y mantenimiento de la plataforma.
+        </p>
+    </div>
+</div>
+{% endblock %}

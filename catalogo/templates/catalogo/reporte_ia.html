@@ -1,0 +1,21 @@
+{% if reporte_ia %}
+<section id="reporte-ia" class="ia-report no-print" aria-labelledby="ia-report-title">
+    <div class="ia-report-heading">
+        <div>
+            <p class="ia-eyebrow">REPORTE DE GENERACIÓN</p>
+            <h2 id="ia-report-title">Tu manual está listo para revisar</h2>
+            <p>{{ reporte_ia.registro.manual.titulo }} · {{ reporte_ia.registro.fecha|date:"d/m/Y H:i" }}</p>
+        </div>
+        {% if reporte_ia.registro.manual and not es_detalle %}<a href="{% url 'detalle_manual' reporte_ia.registro.manual.pk %}" class="ia-report-link">Abrir manual →</a>{% endif %}
+    </div>
+    <div class="ia-consumption-grid">
+        <div class="ia-consumption-total"><span>Consumo de esta generación</span><strong>{% if reporte_ia.registro.tokens_total != None %}{{ reporte_ia.registro.tokens_total|floatformat:"0g" }} <small>tokens{% if reporte_ia.registro.total_parcial %} registrados{% endif %}</small>{% else %}No disponible{% endif %}</strong></div>
+        <div><span>Para leer tu información</span><strong>{% if reporte_ia.desglose_completo %}{{ reporte_ia.registro.tokens_entrada|floatformat:"0g" }}{% else %}Sin desglose{% endif %}</strong></div>
+        <div><span>Para preparar la respuesta</span><strong>{% if reporte_ia.desglose_completo %}{{ reporte_ia.registro.tokens_salida|floatformat:"0g" }}{% else %}Sin desglose{% endif %}</strong></div>
+    </div>
+    <p class="ia-explanation">Los <strong>tokens</strong> son pequeñas partes de texto que la IA procesa al leer las cuentas y redactar el manual. No equivalen a páginas ni a palabras completas.</p>
+    {% if reporte_ia.intentos > 1 %}<p class="ia-data-note">Esta generación necesitó {{ reporte_ia.intentos }} intentos. El reporte suma el consumo informado por esos intentos, incluidas las respuestas incompletas.</p>{% endif %}
+    {% if reporte_ia.registro.total_parcial or reporte_ia.registro.tokens_total == None %}<p class="ia-data-note">El servicio de IA no informó todo el consumo de esta generación. Se muestran los datos disponibles; el acumulado puede ser parcial.</p>{% endif %}
+</section>
+{% endif %}
+{% include "catalogo/resumen_ia.html" %}

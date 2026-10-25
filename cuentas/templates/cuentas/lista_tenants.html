@@ -1,0 +1,62 @@
+{% extends "base_app.html" %}
+{% block title %}Mis organizaciones — Manual Contable AI{% endblock %}
+
+{% block content %}
+<section class="organizations max-w-4xl mx-auto" aria-labelledby="organizations-title">
+    <header class="organizations-heading">
+        <div>
+            <p class="organizations-eyebrow">TU ESPACIO DE TRABAJO</p>
+            <h1 id="organizations-title">Mis organizaciones</h1>
+            <p>Todo tu trabajo contable, en un solo lugar.</p>
+        </div>
+        {% if membresias %}
+        <a href="{% url 'crear_tenant' %}" class="org-primary"><span aria-hidden="true">+</span> Nueva organización</a>
+        {% endif %}
+    </header>
+
+    {% if membresias %}
+    <p class="organizations-hint">Selecciona la organización con la que quieres trabajar.</p>
+    <div class="organizations-grid">
+        {% for m in membresias %}
+        <article class="organization-card {% if request.tenant.id == m.tenant.id %}is-active{% endif %}">
+            <div class="organization-identity">
+                <div class="organization-avatar" aria-hidden="true">{{ m.tenant.nombre|first|upper }}</div>
+                <div class="organization-name">
+                    <h2>{{ m.tenant.nombre }}</h2>
+                    <span class="organization-role">{{ m.get_rol_display }}</span>
+                </div>
+                {% if request.tenant.id == m.tenant.id %}<span class="organization-active">Activa</span>{% endif %}
+            </div>
+            <p class="organization-description">{{ m.tenant.get_giro_display }} · {{ m.tenant.get_regimen_fiscal_display }}</p>
+            {% if m.tenant.rfc %}<p class="organization-rfc">RFC: {{ m.tenant.rfc }}</p>{% endif %}
+            <div class="organization-actions">
+                {% if request.tenant.id == m.tenant.id %}
+                <a href="{% url 'dashboard' %}" class="org-primary">Continuar trabajando <span aria-hidden="true">→</span></a>
+                {% else %}
+                <a href="{% url 'seleccionar_tenant' m.tenant.pk %}" class="org-primary">Abrir organización <span aria-hidden="true">→</span></a>
+                {% endif %}
+                {% if m.rol == 'propietario' %}<a href="{% url 'presentacion_empresa' m.tenant.pk %}" class="org-secondary" aria-label="Personalizar {{ m.tenant.nombre }}">Presentación</a><a href="{% url 'editar_tenant' m.tenant.pk %}" class="org-secondary" aria-label="Editar {{ m.tenant.nombre }}">Editar</a>{% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="organizations-empty">
+        <div class="organizations-illustration" aria-hidden="true">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="10" width="32" height="46" rx="4"/><path d="M24 20h4m8 0h4M24 29h4m8 0h4M24 38h4m8 0h4M27 56V46h10v10M10 56h44"/></svg>
+            <span>+</span>
+        </div>
+        <p class="organizations-eyebrow">EMPIEZA AQUÍ</p>
+        <h2>Tu primera organización,<br>el inicio de todo.</h2>
+        <p>Crea el espacio de tu empresa o despacho para organizar tus cuentas, manuales y equipo.</p>
+        <a href="{% url 'crear_tenant' %}" class="org-primary">Crear organización <span aria-hidden="true">→</span></a>
+        <span class="organizations-empty-note">Podrás agregar más organizaciones después.</span>
+    </div>
+    <div class="organizations-next" aria-label="Qué puedes hacer">
+        <div><span aria-hidden="true">01</span><p><strong>Organiza tus cuentas</strong>Tu catálogo, siempre a mano.</p></div>
+        <div><span aria-hidden="true">02</span><p><strong>Crea manuales con IA</strong>Documenta tu trabajo contable.</p></div>
+        <div><span aria-hidden="true">03</span><p><strong>Trabaja en equipo</strong>Un espacio para tus colegas.</p></div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+[Unit]
+Description=Manual Contable - Torre de Control privada
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=gaibarra
+Group=www-data
+WorkingDirectory=/home/gaibarra/manual_contable_ai
+EnvironmentFile=/home/gaibarra/manual_contable_ai/.env
+Environment=DEBUG=False
+ExecStart=/home/gaibarra/manual_contable_ai/venv/bin/gunicorn manual_contable_ai.wsgi_panel:application --bind unix:/home/gaibarra/manual_contable_ai/panel.sock --workers 2 --threads 2 --timeout 45 --umask 007 --pid /home/gaibarra/manual_contable_ai/panel.pid --access-logfile - --error-logfile -
+Restart=always
+RestartSec=3
+UMask=0007
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

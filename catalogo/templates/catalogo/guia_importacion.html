@@ -1,0 +1,70 @@
+<div class="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-5 space-y-5">
+    <div>
+        <h3 class="font-semibold text-gray-900">Cómo preparar tu archivo</h3>
+        <p class="mt-2 text-sm text-gray-600">Coloca los encabezados en la primera fila y una cuenta por fila a partir de la segunda. Usa los nombres de columna indicados abajo, sin acentos. El orden de las columnas puede variar.</p>
+        <a href="{% url 'descargar_plantilla' %}" class="inline-block mt-3 text-sm font-medium text-blue-700 hover:underline">Descargar plantilla CSV de ejemplo</a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <table class="w-full text-sm text-left">
+            <caption class="px-3 py-3 text-left font-semibold text-gray-800">Columnas del archivo</caption>
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th scope="col" class="px-3 py-2">Columna</th>
+                    <th scope="col" class="px-3 py-2">Obligatoria</th>
+                    <th scope="col" class="px-3 py-2">Formato y ejemplo</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr>
+                    <th scope="row" class="px-3 py-3 font-mono align-top">cuenta</th>
+                    <td class="px-3 py-3 align-top">Sí</td>
+                    <td class="px-3 py-3">Texto, máximo 20 caracteres. Es la clave de tu cuenta; conserva ceros iniciales y separadores. Ejemplos: <code>001</code>, <code>001.01</code>, <code>1100-02</code>. No debe estar vacía.</td>
+                </tr>
+                <tr>
+                    <th scope="row" class="px-3 py-3 font-mono align-top">descripcion</th>
+                    <td class="px-3 py-3 align-top">Sí</td>
+                    <td class="px-3 py-3">Texto con el nombre de la cuenta, por ejemplo <code>Bancos nacionales</code>. Puede contener acentos y espacios. No debe estar vacío. Un nombre preciso ayuda a sugerir la relación SAT.</td>
+                </tr>
+                <tr>
+                    <th scope="row" class="px-3 py-3 font-mono align-top">nivel</th>
+                    <td class="px-3 py-3 align-top">No; recomendado</td>
+                    <td class="px-3 py-3">Número entero de <code>1</code> a <code>20</code>, sin decimales. Indica la profundidad de esa cuenta: <code>1</code> para la cuenta principal, <code>2</code> para su subcuenta, <code>3</code> para el siguiente nivel. Úsalo para filtrar correctamente catálogos con claves sin separadores.</td>
+                </tr>
+                <tr>
+                    <th scope="row" class="px-3 py-3 font-mono align-top">codigoagrupador</th>
+                    <td class="px-3 py-3 align-top">No</td>
+                    <td class="px-3 py-3">Texto con un código existente en el catálogo SAT, por ejemplo <code>102.01</code>. No uses el número de tu cuenta propia en esta columna. Puedes dejarla vacía u omitirla para obtener una relación sugerida; si proporcionas un código inexistente, esa fila se reporta como error.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <details class="text-sm text-gray-600">
+        <summary class="cursor-pointer font-medium text-gray-800">Columnas alternativas: nivel1, nivel2, nivel3 y nivel4</summary>
+        <p class="mt-2">Son opcionales y representan los componentes de la jerarquía. Cada celda debe contener un entero sin decimales, mayor o igual a cero, o quedar vacía. Por ejemplo: <code>nivel1=1</code>, <code>nivel2=0</code>, <code>nivel3=5</code>, <code>nivel4</code> vacío corresponde a profundidad 3. Un cero cuenta como un componente presente. No necesitas estas columnas si ya usas <code>nivel</code>.</p>
+    </details>
+
+    <div class="text-sm text-gray-600 space-y-2">
+        <h4 class="font-semibold text-gray-800">Formato del archivo</h4>
+        <p><strong>Excel (.xlsx):</strong> guarda el catálogo en la hoja activa, con encabezados en la fila 1, sin títulos encima ni celdas combinadas. Configura <code>cuenta</code> y <code>codigoagrupador</code> como <strong>Texto antes de capturarlos o pegarlos</strong>. Escribir <code>001</code> como número puede convertirlo en <code>1</code>; aplicar formato de texto después no recupera los ceros perdidos. Guarda <code>nivel</code> como número entero. El formato antiguo <code>.xls</code> no se admite.</p>
+        <p><strong>CSV (.csv):</strong> usa codificación <strong>UTF-8</strong> y <strong>coma</strong> como separador de columnas. Si tu hoja de cálculo exporta con punto y coma, cambia el separador a coma. Si una descripción contiene comas, enciérrala entre comillas dobles: <code>"Bancos, cuenta principal"</code>.</p>
+    </div>
+
+    <div>
+        <h4 class="font-semibold text-gray-800 text-sm">Ejemplo listo para guardar como CSV</h4>
+        <pre class="mt-2 overflow-x-auto rounded-lg bg-white border border-gray-200 p-3 text-xs"><code>cuenta,descripcion,nivel,codigoagrupador
+1000,Caja,1,
+1000.01,Caja y efectivo,2,
+1100,Bancos,1,
+1100.01,Bancos nacionales,2,102.01</code></pre>
+        <p class="mt-2 text-sm text-gray-600">La coma al final de las primeras filas deja vacío el código SAT para solicitar una sugerencia. En Excel usa las mismas cuatro columnas, con cada dato en su propia celda.</p>
+    </div>
+
+    <div class="text-sm text-gray-600 space-y-2">
+        <h4 class="font-semibold text-gray-800">Cómo se aplica el nivel elegido</h4>
+        <p>Si eliges <strong>hasta el nivel 2</strong>, se importan las cuentas de niveles 1 y 2; las de nivel 3 o superior se omiten. Con <strong>Todos los niveles</strong> se incluyen todas las profundidades del archivo.</p>
+        <p>Para cada fila se usa primero <code>nivel</code>. Si está vacío, se toma el último componente presente entre <code>nivel1</code> y <code>nivel4</code>. Si tampoco hay componentes, se cuentan los segmentos de <code>cuenta</code> separados por punto, guion o barra: <code>1000.01.001</code> tiene nivel 3. Una clave sin separadores se interpreta como nivel 1 cuando no se indica otro nivel.</p>
+        <p>Si una cuenta ya existe en esta organización, se actualiza con los datos del archivo; usa una sola fila por cuenta. Las cuentas omitidas por nivel no se eliminan. Las filas válidas se importan aunque otras tengan errores; el resultado indica qué filas debes corregir. Revisa y confirma las relaciones sugeridas en el catálogo antes de generar un manual.</p>
+    </div>
+</div>

@@ -1,0 +1,179 @@
+{% extends "base_app.html" %}
+{% block title %}Alta e importación — {{ request.tenant.nombre }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold">📤 Alta e importación de catálogo</h1>
+        <p class="text-gray-500 mt-1">Usa la interfaz unificada para cuentas individuales e importación CSV/Excel</p>
+    </div>
+
+    {% if plantillas %}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h3 class="font-semibold mb-2">Plantilla sugerida o seleccionada</h3>
+        <p class="text-sm text-gray-500 mb-4">Puedes partir de una plantilla existente y luego cargar tu archivo propio.</p>
+        <form method="get" class="space-y-3">
+            <label class="block text-sm">
+                <span class="text-gray-700 font-medium">Plantilla</span>
+                <select name="plantilla_id" class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="">Usar plantilla sugerida del giro</option>
+                    {% for plantilla in plantillas %}
+                    <option value="{{ plantilla.id }}" {% if plantilla_seleccionada and plantilla_seleccionada.id == plantilla.id %}selected{% endif %}>
+                        {{ plantilla.nombre }} — {{ plantilla.get_giro_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="flex gap-3">
+                <button type="submit" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
+                    Cargar plantilla
+                </button>
+                {% if plantilla_seleccionada %}
+                <a href="{% url 'agregar_cuenta' %}" class="text-sm text-blue-600 hover:text-blue-800 self-center">Quitar selección</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if plantilla_seleccionada %}
+        <div class="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <div>
+                    <p class="font-medium text-gray-800">{{ plantilla_seleccionada.nombre }}</p>
+                    <p class="text-xs text-gray-500">{{ plantilla_seleccionada.get_giro_display }}{% if plantilla_seleccionada.regimen_fiscal %} · {{ plantilla_seleccionada.get_regimen_fiscal_display }}{% endif %}</p>
+                </div>
+                <div class="text-xs text-gray-500">
+                    {{ plantilla_cuentas|length }} cuentas base
+                </div>
+            </div>
+            <div class="max-h-56 overflow-auto bg-white rounded-lg border border-gray-200">
+                <table class="w-full text-xs">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="text-left px-3 py-2">Cuenta</th>
+                            <th class="text-left px-3 py-2">Descripción</th>
+                            <th class="text-left px-3 py-2">SAT</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for cuenta in plantilla_cuentas %}
+                        <tr>
+                            <td class="px-3 py-2 font-mono">{{ cuenta.cuenta }}</td>
+                            <td class="px-3 py-2">{{ cuenta.descripcion }}</td>
+                            <td class="px-3 py-2">{{ cuenta.codigoagrupador.codigoagrupador }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="px-3 py-3 text-center text-gray-500">La plantilla no tiene cuentas activas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Instrucciones -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+        <h3 class="font-semibold text-blue-800 mb-2">📝 Formato del archivo</h3>
+        <p class="text-blue-700 text-sm mb-3">Tu archivo debe tener estas columnas (mínimo las 3 primeras):</p>
+        <div class="bg-white rounded-lg p-4 font-mono text-xs overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-blue-600 border-b">
+                        <th class="pr-4 pb-2 text-left">cuenta</th>
+                        <th class="pr-4 pb-2 text-left">descripcion</th>
+                        <th class="pr-4 pb-2 text-left">codigoagrupador</th>
+                        <th class="pr-4 pb-2 text-left">nivel1</th>
+                        <th class="pr-4 pb-2 text-left">nivel2</th>
+                        <th class="pr-4 pb-2 text-left">nivel3</th>
+                        <th class="pb-2 text-left">nivel4</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600">
+                    <tr>
+                        <td class="pr-4 py-1">1100</td>
+                        <td class="pr-4">Bancos</td>
+                        <td class="pr-4">102.01</td>
+                        <td class="pr-4">1</td>
+                        <td class="pr-4">1</td>
+                        <td class="pr-4"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="pr-4 py-1">1100.01</td>
+                        <td class="pr-4">Banamex</td>
+                        <td class="pr-4">102.01</td>
+                        <td class="pr-4">1</td>
+                        <td class="pr-4">1</td>
+                        <td class="pr-4">0</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'descargar_plantilla' %}"
+                class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                📥 Descargar plantilla CSV de ejemplo
+            </a>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <form method="post" enctype="multipart/form-data" id="upload-form" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        {% csrf_token %}
+        <input type="hidden" name="plantilla_id" value="{% if plantilla_seleccionada %}{{ plantilla_seleccionada.id }}{% endif %}">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-brand-400 transition"
+            id="drop-zone">
+            <div class="text-5xl mb-4">📁</div>
+            <p class="text-lg font-medium text-gray-700 mb-2">Arrastra tu archivo aquí</p>
+            <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar</p>
+            <input type="file" name="archivo" accept=".csv,.xlsx,.xls" required
+                class="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-100 file:text-brand-700 hover:file:bg-brand-200"
+                id="file-input">
+            <p class="text-xs text-gray-400 mt-3">Formatos: CSV, Excel (.xlsx). Las cuentas existentes se actualizan
+                automáticamente.</p>
+        </div>
+
+        <button type="submit"
+            class="mt-6 w-full gradient-bg text-white py-3 rounded-lg font-bold text-lg hover:opacity-90 transition">
+            Importar catálogo
+        </button>
+    </form>
+
+    <!-- Resultado de importación -->
+    {% if resultado %}
+    <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold mb-4">📊 Resultado de la importación</h3>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="bg-green-50 rounded-lg p-4 text-center">
+                <p class="text-2xl font-bold text-green-700">{{ resultado.creadas }}</p>
+                <p class="text-sm text-green-600">Creadas</p>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                <p class="text-2xl font-bold text-blue-700">{{ resultado.actualizadas }}</p>
+                <p class="text-sm text-blue-600">Actualizadas</p>
+            </div>
+            <div class="bg-{% if resultado.errores %}red{% else %}gray{% endif %}-50 rounded-lg p-4 text-center">
+                <p class="text-2xl font-bold text-{% if resultado.errores %}red{% else %}gray{% endif %}-700">{{ resultado.errores|length }}</p>
+                <p class="text-sm text-{% if resultado.errores %}red{% else %}gray{% endif %}-600">Errores</p>
+            </div>
+        </div>
+
+        {% if resultado.errores %}
+        <details class="bg-red-50 rounded-lg p-4">
+            <summary class="text-red-700 font-medium cursor-pointer">Ver errores ({{ resultado.errores|length }})
+            </summary>
+            <ul class="mt-2 text-sm text-red-600 space-y-1">
+                {% for error in resultado.errores %}
+                <li>Fila {{ error.fila }}: {{ error.mensaje }}</li>
+                {% endfor %}
+            </ul>
+        </details>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

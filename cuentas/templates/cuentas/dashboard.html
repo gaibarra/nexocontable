@@ -1,0 +1,200 @@
+{% extends "base_app.html" %}
+{% load static markdown_filters %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/manual-dashboard.css' %}?v=1">
+{% endblock %}
+{% block title %}Dashboard — Manual Contable AI{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">
+        {% if request.tenant %}
+        Dashboard — {{ request.tenant.nombre }}
+        {% else %}
+        Bienvenido, {{ user.first_name|default:user.username }}
+        {% endif %}
+    </h1>
+    <p class="text-gray-500 mt-1">
+        {% if request.tenant %}
+        {{ request.tenant.get_giro_display }} · {{ request.tenant.get_regimen_fiscal_display }}
+        {% else %}
+        Selecciona una organización para comenzar
+        {% endif %}
+    </p>
+</div>
+
+{% include "catalogo/resumen_ia.html" %}
+
+{% if request.tenant %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wider">Cuentas</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ total_cuentas }}</p>
+            </div>
+            <div class="text-4xl">📋</div>
+        </div>
+        <a href="{% url 'catalogo_cuentas' %}" class="text-brand-600 text-sm mt-3 inline-block hover:underline">Ver
+            catálogo →</a>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wider">Manuales</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ total_manuales }}</p>
+            </div>
+            <div class="text-4xl">📘</div>
+        </div>
+        <a href="{% url 'generar_manual' %}" class="text-brand-600 text-sm mt-3 inline-block hover:underline">Generar
+            nuevo →</a>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wider">Pendientes</p>
+                <p class="text-3xl font-bold text-yellow-600 mt-1">{{ manuales_pendientes }}</p>
+            </div>
+            <div class="text-4xl">⏳</div>
+        </div>
+        <span class="text-gray-400 text-sm mt-3 inline-block">Por aprobar</span>
+    </div>
+</div>
+
+<!-- Acciones rápidas y Equipo -->
+<div class="grid lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-2 grid md:grid-cols-2 gap-6">
+        <a href="{% url 'agregar_cuenta' %}"
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition group border-b-4 border-b-blue-500">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-3xl group-hover:scale-110 transition">
+                    📤</div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg group-hover:text-blue-600">Alta e importación</h3>
+                        <p class="text-sm text-gray-500">Carga masiva (CSV/Excel) y cuentas individuales</p>
+                </div>
+            </div>
+        </a>
+        <a href="{% url 'generar_manual' %}"
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition group border-b-4 border-b-purple-500">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-3xl group-hover:scale-110 transition">
+                    🤖</div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg group-hover:text-purple-600">Generar manual</h3>
+                    <p class="text-sm text-gray-500">IA con materialidad 2026</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Equipo Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-900">👥 Equipo</h3>
+            <a href="{% url 'equipo_tenant' request.tenant.pk %}"
+                class="text-xs text-brand-600 font-bold hover:underline">Gestionar</a>
+        </div>
+        <div class="space-y-3">
+            {% for m in request.tenant.membresias.all|slice:":3" %}
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-[10px] text-white font-bold">
+                    {{ m.usuario.username|first|upper }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-gray-900 truncate">{{ m.usuario.get_full_name|default:m.usuario.username }}</p>
+                    <p class="text-[10px] text-gray-500 uppercase">{{ m.get_rol_display }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% if request.tenant.membresias.count > 3 %}
+            <p class="text-[10px] text-gray-400 text-center">+ {{ request.tenant.membresias.count|add:"-3" }} miembros
+                más</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Manuales recientes -->
+{% if manuales_recientes %}
+<section class="manual-library" aria-labelledby="manual-library-title">
+    <div class="manual-library-heading">
+        <div>
+            <h2 id="manual-library-title">Manuales recientes</h2>
+            <p>Consulta su alcance y gestiona cada documento desde aquí.</p>
+        </div>
+        <a href="{% url 'generar_manual' %}">Ver todos los manuales →</a>
+    </div>
+    {% for manual in manuales_recientes %}
+    <article class="manual-card" aria-labelledby="manual-title-{{ manual.pk }}">
+        <div class="manual-card-document" aria-hidden="true">
+            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2h10l5 5v18H5z"/><path d="M15 2v6h5M8 13h9M8 17h9M8 21h6"/></svg>
+        </div>
+        <div class="manual-card-main">
+            <div class="manual-card-title">
+                <a id="manual-title-{{ manual.pk }}" href="{% url 'detalle_manual' manual.pk %}">{{ manual.titulo }}</a>
+                <span class="manual-badge {% if manual.aprobado %}is-approved{% endif %}">{% if manual.aprobado %}Aprobado{% else %}Pendiente de aprobación{% endif %}</span>
+            </div>
+            <div class="manual-scope">
+                {% if manual.cuentas.all %}
+                    <span class="manual-scope-count">{{ manual.cuentas.all|length }} cuenta{{ manual.cuentas.all|length|pluralize:"s" }} del catálogo propio</span>
+                    {% for cuenta in manual.cuentas.all|slice:":2" %}<span class="manual-scope-item"><code>{{ cuenta.cuenta }}</code> {{ cuenta.descripcion|default:"Sin descripción" }}</span>{% endfor %}
+                    {% if manual.cuentas.all|length > 2 %}<span>+{{ manual.cuentas.all|length|add:"-2" }} más</span>{% endif %}
+                {% elif manual.codigos_sat.all %}
+                    <span class="manual-scope-count">{{ manual.codigos_sat.all|length }} código{{ manual.codigos_sat.all|length|pluralize:"s" }} del catálogo SAT</span>
+                    {% for codigo in manual.codigos_sat.all|slice:":2" %}<span class="manual-scope-item"><code>{{ codigo.codigoagrupador }}</code> {{ codigo.nombre }}</span>{% endfor %}
+                    {% if manual.codigos_sat.all|length > 2 %}<span>+{{ manual.codigos_sat.all|length|add:"-2" }} más</span>{% endif %}
+                {% else %}<span>Sin cuentas asociadas</span>{% endif %}
+            </div>
+            <p class="manual-preview">{{ manual.contenido|render_markdown|striptags|truncatewords:24 }}</p>
+            <div class="manual-meta">
+                <span>Creado el {{ manual.fecha_creacion|date:"d M Y, H:i" }}</span>
+                <span>Por {% if manual.creado_por %}{{ manual.creado_por.get_full_name|default:manual.creado_por.username }}{% else %}Usuario no disponible{% endif %}</span>
+            </div>
+        </div>
+        <div class="manual-card-actions" aria-label="Acciones de {{ manual.titulo }}">
+            <a class="manual-action-primary" href="{% url 'detalle_manual' manual.pk %}">Abrir manual ↗</a>
+            <div class="manual-action-tools">
+                <a href="{% url 'editar_manual' manual.pk %}">Editar</a>
+                <a href="{% url 'exportar_manual' manual.pk %}" title="Descargar documento Word">Exportar Word</a>
+                <a href="{% url 'detalle_manual' manual.pk %}?imprimir=1" target="_blank" rel="noopener" title="Imprimir o guardar como PDF">Imprimir</a>
+                <form method="post" action="{% url 'eliminar_manual' manual.pk %}" data-confirm="¿Eliminar el manual «{{ manual.titulo }}»? Esta acción no se puede deshacer.">
+                    {% csrf_token %}<input type="hidden" name="origen" value="dashboard">
+                    <button type="submit" class="manual-action-delete">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% else %}
+<!-- Sin tenant seleccionado -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-12 text-center">
+    <div class="text-6xl mb-4">🏢</div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-2">Selecciona o crea una organización</h2>
+    <p class="text-gray-500 mb-6 max-w-md mx-auto">
+        Para comenzar a trabajar, necesitas seleccionar una organización o crear una nueva.
+    </p>
+    <div class="flex flex-col sm:flex-row justify-center gap-3">
+        <a href="{% url 'crear_tenant' %}"
+            class="gradient-bg text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition">
+            Crear organización →
+        </a>
+        {% if mis_tenants %}
+        <a href="{% url 'lista_tenants' %}"
+            class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition">
+            Mis organizaciones
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

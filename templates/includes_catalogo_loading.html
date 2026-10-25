@@ -1,0 +1,90 @@
+{% url 'catalogo_cuentas' as catalogo_url %}
+<style>
+    #catalogo-loading[hidden] { display: none; }
+    #catalogo-loading {
+        position: fixed; inset: 0; z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
+        padding: 1.5rem; background: rgba(15, 23, 42, 0.4); cursor: progress;
+    }
+    #catalogo-loading .catalogo-loading-card {
+        width: 100%; max-width: 24rem; padding: 2rem;
+        border-radius: 1rem; background: white; text-align: center;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    }
+    #catalogo-loading .catalogo-loading-spinner {
+        width: 2.75rem; height: 2.75rem; margin: 0 auto 1rem;
+        border: 4px solid #dbeafe; border-top-color: #1a365d;
+        border-radius: 50%; animation: catalogo-loading-spin 0.8s linear infinite;
+    }
+    @keyframes catalogo-loading-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+        #catalogo-loading .catalogo-loading-spinner { animation: none; }
+    }
+    @media print { #catalogo-loading { display: none; } }
+</style>
+<div id="catalogo-loading" data-catalogo-url="{{ catalogo_url }}" hidden role="status" aria-live="polite" aria-atomic="true">
+    <div class="catalogo-loading-card">
+        <div class="catalogo-loading-spinner" aria-hidden="true"></div>
+        <p class="text-lg font-semibold text-gray-900">Cargando Catálogo de Cuentas</p>
+        <p class="mt-2 text-sm text-gray-500">Espera un momento, estamos preparando tus cuentas.</p>
+    </div>
+</div>
+<script>
+    (() => {
+        const overlay = document.getElementById('catalogo-loading');
+        let navigatingAway = false;
+        const onCatalogo = () => window.location.pathname === overlay.dataset.catalogoUrl;
+        const isCatalogo = (value) => {
+            const url = new URL(value, window.location.href);
+            return url.origin === window.location.origin &&
+                url.pathname === overlay.dataset.catalogoUrl && !url.hash;
+        };
+        const show = () => {
+            overlay.hidden = false;
+            const main = document.querySelector('main');
+            if (main) main.setAttribute('aria-busy', 'true');
+        };
+        const hide = () => {
+            overlay.hidden = true;
+            const main = document.querySelector('main');
+            if (main) main.removeAttribute('aria-busy');
+            navigatingAway = false;
+        };
+        document.addEventListener('click', (event) => {
+            if (event.defaultPrevented || event.button !== 0 ||
+                event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            const link = event.target.closest('a[href]');
+            if (!link || link.hasAttribute('download') ||
+                (link.target && link.target !== '_self')) return;
+            navigatingAway = !isCatalogo(link.href);
+            if (!navigatingAway) show();
+        });
+        document.addEventListener('submit', (event) => {
+            const form = event.target;
+            if (event.defaultPrevented || form.hasAttribute('data-confirm') ||
+                (form.target && form.target !== '_self')) return;
+            const submitter = event.submitter;
+            if (submitter && submitter.formTarget && submitter.formTarget !== '_self') return;
+            const action = (submitter && submitter.getAttribute('formaction')) || form.action;
+            navigatingAway = !isCatalogo(action);
+            if (!navigatingAway) show();
+        });
+        // La recarga del navegador no dispara click ni submit.
+        window.addEventListener('beforeunload', () => {
+            if (onCatalogo() && !navigatingAway) show();
+        });
+        // El indicador se inserta antes del contenido y se retira al terminar la carga.
+        if (onCatalogo() && document.readyState !== 'complete') show();
+        window.addEventListener('load', hide);
+        // Al regresar con Atrás, el navegador puede restaurar la página con el indicador visible.
+        window.addEventListener('pageshow', hide);
+        document.addEventListener('keydown', (event) => {
+            if (onCatalogo() && (event.key === 'F5' ||
+                ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r'))) {
+                navigatingAway = false;
+                show();
+            }
+            if (event.key === 'Escape') hide();
+        });
+    })();
+</script>

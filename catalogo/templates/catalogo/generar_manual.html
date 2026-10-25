@@ -1,0 +1,191 @@
+{% extends "base_app.html" %}
+{% load markdown_filters static %}
+{% block title %}Generar Manual — {{ request.tenant.nombre }}{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold">🤖 Generar Manual Contable</h1>
+    <p class="text-gray-500">{{ request.tenant.nombre }} — {{ request.tenant.get_giro_display }}</p>
+</div>
+
+{% include "catalogo/reporte_ia.html" %}
+
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+    <!-- Columna izquierda: Selección y generación -->
+    <div class="lg:col-span-3 min-w-0">
+        <form method="post" id="manual-generation-form" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            {% csrf_token %}
+            <h2 class="font-semibold text-gray-900 mb-4">Selecciona cuentas</h2>
+            {% if usar_sat %}<p class="text-sm text-gray-500 mb-4">Estás usando el catálogo oficial SAT. Puedes subir tu catálogo propio cuando lo necesites.</p>{% endif %}
+
+            {% if cuentas %}
+            {% if usar_sat %}
+            <div class="max-h-96 overflow-y-auto space-y-2 mb-4">
+                {% for cuenta in cuentas %}
+                <label class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" name="cuentas" value="{{ cuenta.id }}" class="mt-1 h-4 w-4 text-brand-600 rounded">
+                    <span><span class="font-mono text-sm font-medium">{{ cuenta.cuenta }}</span>
+                        <span class="text-sm text-gray-600 block">{{ cuenta.descripcion }}</span></span>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+                {% include "catalogo/selector_catalogo_propio.html" %}
+            {% endif %}
+
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Al solicitar la generación, se enviarán el nombre, giro y régimen de la organización y las cuentas seleccionadas a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o al respaldo {{ privacidad.respaldo_ia }}{% endif %}, con posible procesamiento fuera de México. Usa descripciones genéricas y evita datos sensibles o de terceros sin autorización. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta cómo se tratan los datos en la IA</a>.</p>
+            <button type="submit"
+                id="generate-manual-button"
+                class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">
+                🤖 Generar con IA
+            </button>
+            <p class="text-xs text-gray-400 mt-2 text-center">Incluye materialidad fiscal 2026</p>
+
+            <div id="manual-progress-wrap" class="hidden mt-4">
+                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                    <span id="manual-progress-label">Preparando generación...</span>
+                    <span id="manual-progress-percent">0%</span>
+                </div>
+                <div class="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                    <div id="manual-progress-bar" class="h-full w-0 rounded-full bg-brand-600 transition-all duration-300"></div>
+                </div>
+                <ul id="manual-progress-steps" class="mt-3 space-y-1 text-xs text-gray-500">
+                    <li class="manual-step">1. Validando cuentas seleccionadas</li>
+                    <li class="manual-step">2. Preparando la información de la empresa</li>
+                    <li class="manual-step">3. Generando contenido con IA</li>
+                    <li class="manual-step">4. Organizando el documento final</li>
+                </ul>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <p class="text-gray-500 mb-3">No hay cuentas aún</p>
+                <a href="{% url 'agregar_cuenta' %}" class="text-brand-600 text-sm hover:underline">Ir a alta e importación →</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Columna derecha: Manuales existentes -->
+    <div class="lg:col-span-2 min-w-0">
+        <h2 class="font-semibold text-gray-900 mb-4">Manuales generados</h2>
+
+        {% if manuales %}
+        <div class="space-y-4">
+            {% for manual in manuales %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">{{ manual.titulo }}</h3>
+                        <p class="text-sm text-gray-500">
+                            {{ manual.fecha_creacion|date:"d/M/Y H:i" }}
+                            {% if manual.creado_por %}· {{ manual.creado_por.get_full_name|default:manual.creado_por.username }}{% endif %}
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs px-2 py-1 rounded-full {% if manual.aprobado %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                        {% if manual.aprobado %}✅ Aprobado{% else %}⏳ Pendiente{% endif %}
+                    </span>
+                </div>
+
+                <div class="prose prose-sm max-w-none text-gray-700 mb-4 max-h-48 overflow-hidden relative">
+                    {{ manual.contenido|render_markdown }}
+                    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <a href="{% url 'detalle_manual' manual.pk %}" class="text-brand-600 text-sm hover:underline">Ver
+                        completo</a>
+                    <span class="text-gray-300">|</span>
+                    <a href="{% url 'editar_manual' manual.pk %}"
+                        class="text-gray-500 text-sm hover:underline">Editar</a>
+                    {% if not manual.aprobado %}
+                    <span class="text-gray-300">|</span>
+                    <form method="post" action="{% url 'aprobar_manual' manual.pk %}" class="inline">
+                        {% csrf_token %}
+                        <button class="text-green-600 text-sm hover:underline">Aprobar</button>
+                    </form>
+                    {% endif %}
+                    <span class="text-gray-300">|</span>
+                    <form method="post" action="{% url 'eliminar_manual' manual.pk %}" class="inline"
+                        data-confirm="¿Eliminar este manual?">
+                        {% csrf_token %}
+                        <button class="text-red-500 text-sm hover:underline">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
+            <div class="text-5xl mb-3">📘</div>
+            <p class="text-gray-500">Aún no hay manuales. Selecciona cuentas y genera uno con IA.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% if not usar_sat %}{% include "catalogo/modal_vincular_sat.html" %}{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if not usar_sat %}<script src="{% static 'js/manual_vinculos.js' %}?v=2" defer></script>
+<script src="{% static 'js/manual_modal_vinculo.js' %}" defer></script>{% endif %}
+<script>
+(() => {
+    const form = document.getElementById('manual-generation-form');
+    if (!form) return;
+
+    const button = document.getElementById('generate-manual-button');
+    const wrap = document.getElementById('manual-progress-wrap');
+    const bar = document.getElementById('manual-progress-bar');
+    const percent = document.getElementById('manual-progress-percent');
+    const label = document.getElementById('manual-progress-label');
+    const steps = Array.from(document.querySelectorAll('.manual-step'));
+
+    let currentProgress = 0;
+    let intervalId = null;
+
+    const setProgress = (value, text) => {
+        currentProgress = Math.min(95, value);
+        bar.style.width = `${currentProgress}%`;
+        percent.textContent = `${Math.round(currentProgress)}%`;
+        if (text) label.textContent = text;
+    };
+
+    const markStep = (index) => {
+        steps.forEach((step, stepIndex) => {
+            step.classList.toggle('text-brand-700', stepIndex <= index);
+            step.classList.toggle('font-medium', stepIndex <= index);
+        });
+    };
+
+    form.addEventListener('submit', () => {
+        wrap.classList.remove('hidden');
+        button.disabled = true;
+        button.textContent = 'Generando manual...';
+        button.classList.add('opacity-70', 'cursor-not-allowed');
+
+        const stages = [
+            { progress: 12, label: 'Validando cuentas seleccionadas' },
+            { progress: 28, label: 'Preparando la información de la empresa' },
+            { progress: 52, label: 'Generando contenido con IA' },
+            { progress: 76, label: 'Organizando el documento final' },
+            { progress: 90, label: 'Preparando tu manual' },
+        ];
+
+        let stageIndex = 0;
+        setProgress(stages[0].progress, stages[0].label);
+        markStep(0);
+
+        intervalId = window.setInterval(() => {
+            if (stageIndex < stages.length - 1) {
+                stageIndex += 1;
+                setProgress(stages[stageIndex].progress, stages[stageIndex].label);
+                markStep(stageIndex);
+            } else {
+                window.clearInterval(intervalId);
+            }
+        }, 1400);
+    });
+})();
+</script>
+{% endblock %}

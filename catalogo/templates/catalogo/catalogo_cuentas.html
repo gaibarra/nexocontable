@@ -1,0 +1,108 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Catálogo de Cuentas — {{ request.tenant.nombre }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/sat-selector.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-2xl font-bold">📋 Catálogo de Cuentas</h1>
+        <p class="text-gray-500">{{ total }} cuentas en {{ request.tenant.nombre }}</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'agregar_cuenta' %}"
+            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">+ Agregar
+            cuenta</a>
+        <a href="{% url 'agregar_cuenta' %}"
+            class="gradient-bg text-white px-4 py-2 rounded-lg text-sm hover:opacity-90">📤 Alta e importación</a>
+    </div>
+</div>
+
+<!-- Búsqueda -->
+<form method="get" class="mb-6">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar cuenta, descripción o código agrupador..."
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+</form>
+
+{% if cuentas %}
+<datalist id="codigos-sat">
+    {% for codigo in codigos_sat %}<option value="{{ codigo.codigoagrupador }}" label="{{ codigo.nombre }}"></option>{% endfor %}
+</datalist>
+<p class="mb-3 text-sm text-gray-500">Mostrando {{ cuentas.start_index }}–{{ cuentas.end_index }} de {{ total }} cuentas. Vincula cada cuenta buscando por código o nombre del SAT.</p>
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+    <table class="accounts-table w-full text-sm">
+        <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">Cuenta</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">Descripción</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">Código Agrupador SAT</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-600">Niveles</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for c in cuentas %}
+            <tr class="hover:bg-gray-50">
+                <td data-label="Cuenta" class="px-4 py-3 font-mono font-medium">{{ c.cuenta }}</td>
+                <td data-label="Descripción" class="px-4 py-3">{{ c.descripcion }}</td>
+                <td data-label="Vinculación SAT" class="px-4 py-3 text-sm text-gray-500 sat-cell" data-relacion-cuenta>
+                    <span data-relacion-codigo>{{ c.codigoagrupador|default_if_none:"Sin relación" }}</span>
+                    <span data-relacion-estado class="block text-xs" role="status" aria-live="polite">{% if not c.codigoagrupador %}Falta vinculación SAT{% elif c.relacion_sugerida %}Sugerida{% if c.confianza_relacion %} · similitud {{ c.confianza_relacion }}%{% endif %}{% else %}Vinculación confirmada{% endif %}</span>
+                    <form method="post" action="{% url 'confirmar_relacion' c.pk %}" class="sat-link-form" data-confirmar-relacion data-confirmed-code="{% if c.codigoagrupador and not c.relacion_sugerida %}{{ c.codigoagrupador.codigoagrupador }}{% endif %}">
+                        {% csrf_token %}<input type="hidden" name="cuenta_id" value="{{ c.pk }}">
+                        <input type="text" name="codigoagrupador" required autocomplete="off" data-sat-input
+                            value="{{ c.codigoagrupador.codigoagrupador|default_if_none:'' }}"
+                            aria-label="Relación SAT de {{ c.cuenta }}" aria-describedby="relacion-ayuda-{{ c.pk }}"
+                            placeholder="Buscar código o nombre SAT…"
+                            class="sat-search">
+                        <p id="relacion-ayuda-{{ c.pk }}" data-relacion-ayuda class="sat-help">{% if not c.codigoagrupador %}Primero selecciona un código SAT para habilitar la confirmación.{% elif not c.relacion_sugerida %}Esta relación ya está confirmada. Puedes elegir otro código para cambiarla.{% else %}Revisa el código sugerido antes de confirmarlo.{% endif %}</p>
+                        <button type="submit" {% if not c.codigoagrupador or not c.relacion_sugerida %}disabled{% endif %}
+                            class="sat-save">{% if c.codigoagrupador and not c.relacion_sugerida %}Relación confirmada{% else %}Confirmar relación{% endif %}</button>
+                    </form>
+                </td>
+                <td data-label="Nivel" class="px-4 py-3 text-xs text-gray-400">
+                    {{ c.nivel }}
+                </td>
+                <td data-label="Acciones" class="px-4 py-3 text-right">
+                    <form method="post" action="{% url 'eliminar_cuenta' c.pk %}" class="inline"
+                        data-confirm="¿Eliminar cuenta {{ c.cuenta }}?">
+                        {% csrf_token %}
+                        <button type="submit" aria-label="Eliminar cuenta {{ c.cuenta }}" class="text-red-400 hover:text-red-600 text-xs">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if cuentas.paginator.num_pages > 1 %}
+<nav class="flex flex-wrap items-center justify-between gap-3 mt-4" aria-label="Páginas del catálogo">
+    <span class="text-sm text-gray-500">Página {{ cuentas.number }} de {{ cuentas.paginator.num_pages }}</span>
+    <div class="flex flex-wrap gap-3">
+        {% if cuentas.has_previous %}<a href="?q={{ busqueda|urlencode }}&amp;page={{ cuentas.previous_page_number }}" class="px-4 py-2 border rounded-lg">Anterior</a>{% endif %}
+        {% if cuentas.has_next %}<a href="?q={{ busqueda|urlencode }}&amp;page={{ cuentas.next_page_number }}" class="px-4 py-2 border rounded-lg">Siguiente</a>{% endif %}
+    </div>
+</nav>
+{% endif %}
+{% else %}
+<div class="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
+    <div class="text-5xl mb-4">📋</div>
+    <h2 class="text-xl font-bold mb-2">Sin cuentas aún</h2>
+    <p class="text-gray-500 mb-6">El catálogo SAT está disponible automáticamente. Subir tu propio catálogo es opcional.</p>
+    <a href="{% url 'generar_manual' %}" class="text-blue-600">Generar manual con el catálogo SAT</a>
+    <div class="flex justify-center gap-4">
+        <a href="{% url 'agregar_cuenta' %}" class="gradient-bg text-white px-6 py-3 rounded-lg font-medium">Ir a alta e
+            importación</a>
+        <a href="{% url 'agregar_cuenta' %}" class="border border-gray-300 px-6 py-3 rounded-lg">Agregar cuenta</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/confirmar_relacion.js' %}?v=2" defer></script>
+<script src="{% static 'js/sat-selector.js' %}?v=1" defer></script>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "base_app.html" %}
+{% block title %}{% if modo == 'editar' %}Editar{% else %}Nueva{% endif %} plantilla{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold">{% if modo == 'editar' %}✏️ Editar{% else %}➕ Nueva{% endif %} plantilla</h1>
+        <p class="text-gray-500 mt-1">Define la base de cuentas por giro de empresa.</p>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-5">
+        {% csrf_token %}
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                {{ form.nombre }}
+                {{ form.nombre.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Giro</label>
+                {{ form.giro }}
+                {{ form.giro.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Régimen fiscal</label>
+                {{ form.regimen_fiscal }}
+                {{ form.regimen_fiscal.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+                {{ form.orden }}
+                {{ form.orden.errors }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            {{ form.descripcion }}
+            {{ form.descripcion.errors }}
+        </div>
+
+        <div class="flex items-center gap-3">
+            {{ form.activo }}
+            <label class="text-sm text-gray-700" for="id_activo">Activa</label>
+        </div>
+        {{ form.activo.errors }}
+
+        {% if modo == 'editar' and formset %}
+        <div class="pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold">Cuentas de la plantilla</h2>
+                <span class="text-xs text-gray-500">Agrega, modifica o elimina cuentas base</span>
+            </div>
+
+            {{ formset.management_form }}
+            <div id="plantilla-cuentas-formset" class="space-y-4">
+                {% for row in formset %}
+                <div class="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                    {% if row.instance.pk %}
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm font-medium text-gray-700">Cuenta base</p>
+                        <div class="text-xs text-gray-500">{% if row.DELETE %}Marcar para eliminar{% endif %}</div>
+                    </div>
+                    {% endif %}
+                    {{ row.id }}
+                    <div class="grid md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Cuenta</label>
+                            {{ row.cuenta }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Descripción</label>
+                            {{ row.descripcion }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Código SAT</label>
+                            {{ row.codigoagrupador }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 1</label>
+                            {{ row.nivel1 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 2</label>
+                            {{ row.nivel2 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 3</label>
+                            {{ row.nivel3 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 4</label>
+                            {{ row.nivel4 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Orden</label>
+                            {{ row.orden }}
+                        </div>
+                        <div class="flex items-center gap-4 pt-6">
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-700">{{ row.es_recomendada }} Recomendada</label>
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-700">{{ row.activa }} Activa</label>
+                            {% if row.DELETE %}
+                            <label class="inline-flex items-center gap-2 text-xs text-red-600">{{ row.DELETE }} Eliminar</label>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if row.errors %}
+                    <div class="mt-3 text-sm text-red-600">{{ row.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <template id="empty-form-template">
+                <div class="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                    {{ formset.empty_form.id }}
+                    <div class="grid md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Cuenta</label>
+                            {{ formset.empty_form.cuenta }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Descripción</label>
+                            {{ formset.empty_form.descripcion }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Código SAT</label>
+                            {{ formset.empty_form.codigoagrupador }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 1</label>
+                            {{ formset.empty_form.nivel1 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 2</label>
+                            {{ formset.empty_form.nivel2 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 3</label>
+                            {{ formset.empty_form.nivel3 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nivel 4</label>
+                            {{ formset.empty_form.nivel4 }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Orden</label>
+                            {{ formset.empty_form.orden }}
+                        </div>
+                        <div class="flex items-center gap-4 pt-6">
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-700">{{ formset.empty_form.es_recomendada }} Recomendada</label>
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-700">{{ formset.empty_form.activa }} Activa</label>
+                            {% if formset.empty_form.DELETE %}
+                            <label class="inline-flex items-center gap-2 text-xs text-red-600">{{ formset.empty_form.DELETE }} Eliminar</label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="mt-4 flex justify-end">
+                <button type="button" id="add-plantilla-cuenta" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
+                    + Agregar cuenta base
+                </button>
+            </div>
+
+            <script>
+                (function () {
+                    const addButton = document.getElementById('add-plantilla-cuenta');
+                    const container = document.getElementById('plantilla-cuentas-formset');
+                    const template = document.getElementById('empty-form-template');
+                    const totalFormsInput = document.getElementById('id_cuentas-TOTAL_FORMS');
+
+                    if (!addButton || !container || !template || !totalFormsInput) {
+                        return;
+                    }
+
+                    addButton.addEventListener('click', function () {
+                        const formIndex = parseInt(totalFormsInput.value, 10);
+                        const html = template.innerHTML.replace(/__prefix__/g, formIndex);
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = html.trim();
+                        container.appendChild(wrapper.firstElementChild);
+                        totalFormsInput.value = formIndex + 1;
+                    });
+                })();
+            </script>
+        </div>
+        {% endif %}
+
+        <div class="flex gap-4 pt-4">
+            <button type="submit" class="gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:opacity-90">Guardar</button>
+            <a href="{% url 'gestionar_plantillas' %}" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

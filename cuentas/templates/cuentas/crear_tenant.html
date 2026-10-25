@@ -1,0 +1,75 @@
+{% extends "base_app.html" %}
+{% block title %}Nueva organización — Manual Contable AI{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">🏢 Nueva organización</h1>
+        <p class="text-gray-500 mt-1">Registra una empresa o despacho. Podrás tener múltiples organizaciones.</p>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-5">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la organización *</label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}<p class="text-red-500 text-xs mt-1">{{ form.nombre.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">RFC</label>
+                {{ form.rfc }}
+                {% if form.rfc.errors %}<p class="text-red-500 text-xs mt-1">{{ form.rfc.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                {{ form.telefono }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Giro *</label>
+                {{ form.giro }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Régimen fiscal *</label>
+                {{ form.regimen_fiscal }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            {{ form.direccion }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                {{ form.ciudad }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                {{ form.estado }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">C.P.</label>
+                {{ form.codigo_postal }}
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-4">
+            <button type="submit"
+                class="gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition">
+                Crear organización →
+            </button>
+            <a href="{% url 'lista_tenants' %}"
+                class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

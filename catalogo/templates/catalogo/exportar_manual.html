@@ -1,0 +1,14 @@
+{% load markdown_filters %}<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>{{ manual.titulo }}</title>
+<style>
+body { font-family: Calibri, Arial, sans-serif; color: #172b45; font-size: 11pt; line-height: 1.6; }
+h1 { color: #1a365d; font-size: 22pt; } h2 { color: #1a365d; font-size: 16pt; }
+.metadata { color: #64748b; font-size: 10pt; } table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #cbd5e1; padding: 7px; } th { background: #edf4fb; }
+</style></head><body>
+<h1>{{ manual.titulo }}</h1>
+<p><strong>{{ manual.tenant.nombre }}</strong></p>
+<p class="metadata">Creado el {{ manual.fecha_creacion|date:"d/m/Y H:i" }} · {% if manual.aprobado %}Aprobado{% else %}Pendiente de aprobación{% endif %}{% if manual.creado_por %}<br>Autor: {{ manual.creado_por.get_full_name|default:manual.creado_por.username }}{% endif %}</p>
+<p class="metadata">{% for cuenta in manual.cuentas.all %}{{ cuenta.cuenta }} · {{ cuenta.descripcion }}{% if not forloop.last %}<br>{% endif %}{% endfor %}{% for codigo in manual.codigos_sat.all %}{{ codigo.codigoagrupador }} · {{ codigo.nombre }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p><hr>
+{{ manual.contenido|render_markdown }}
+</body></html>

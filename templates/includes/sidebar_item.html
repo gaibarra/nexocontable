@@ -1,0 +1,10 @@
+{% if request.resolver_match.url_name == route_name %}
+<span class="sidebar-link active flex items-center gap-3 px-3 py-2.5 text-sm font-semibold cursor-default"
+    aria-current="page" aria-disabled="true" title="Ya estás en esta pantalla">
+    <span aria-hidden="true">{{ icon }}</span> {{ label }}
+</span>
+{% else %}
+<a href="{% url route_name %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm">
+    <span aria-hidden="true">{{ icon }}</span> {{ label }}
+</a>
+{% endif %}

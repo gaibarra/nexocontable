@@ -1,0 +1,114 @@
+{% extends "base_app.html" %}
+{% block title %}Gestionar Equipo — {{ tenant.nombre }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">👥 Gestión de Equipo</h1>
+            <p class="text-gray-500">{{ tenant.nombre }}</p>
+        </div>
+        <a href="{% url 'lista_tenants' %}" class="text-brand-600 hover:underline">← Volver a organizaciones</a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Lista de miembros -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h2 class="font-semibold text-gray-900">Miembros activos</h2>
+                </div>
+                <div class="divide-y divide-gray-100">
+                    {% for m in membresias %}
+                    <div class="p-6 flex items-center justify-between group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-lg">
+                                {{ m.usuario.first_name|first|default:m.usuario.username|first|upper }}
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">{{ m.usuario.get_full_name|default:m.usuario.email }}
+                                </p>
+                                <p class="text-sm text-gray-500">{{ m.usuario.email }}</p>
+                                <div class="flex gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 font-bold">
+                                        {{ m.get_rol_display }}
+                                    </span>
+                                    {% if m.usuario.perfil_cpc.cedula_profesional %}
+                                    <span
+                                        class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-bold">
+                                        ✓ CPC verificado
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if es_propietario and m.rol != 'propietario' %}
+                        <form method="post" action="{% url 'eliminar_miembro' tenant.pk m.pk %}"
+                            data-confirm="¿Estás seguro de eliminar a este miembro?">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">
+                                🗑️
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de registro -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="font-bold text-gray-900 mb-4 text-lg">Registrar colega</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    Crea una cuenta para tu auxiliar o contador. Se enviará un enlace seguro por correo para establecer contraseña (vigente por 24 horas).
+                </p>
+
+                <form method="post" action="{% url 'registrar_usuario' tenant.pk %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Nombre
+                            Completo</label>
+                        <input type="text" name="nombre" placeholder="Juan Pérez López" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Email</label>
+                        <input type="email" name="email" placeholder="correo@ejemplo.com" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Rol /
+                            Permisos</label>
+                        <select name="rol"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition bg-white">
+                            <option value="contador">Contador</option>
+                            <option value="auxiliar">Auxiliar Contable</option>
+                            <option value="solo_lectura">Solo Lectura</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                        class="w-full gradient-bg text-white py-3 rounded-xl font-bold hover:shadow-lg transition transform active:scale-95">
+                        Registrar y enviar invitación
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6">
+                <h4 class="font-bold text-brand-900 mb-2">Roles y Permisos</h4>
+                <ul class="text-xs text-brand-800 space-y-3">
+                    <li><strong>Propietario:</strong> Gestión total + Equipo</li>
+                    <li><strong>Contador:</strong> Catálogos + Manuales + Editar Org</li>
+                    <li><strong>Auxiliar:</strong> Catálogos + Manuales</li>
+                    <li><strong>Solo Lectura:</strong> Consultas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

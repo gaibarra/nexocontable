@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 220" role="img" aria-label="NexoContable logo horizontal">
+  <defs>
+    <linearGradient id="ncGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a365d"/>
+      <stop offset="55%" stop-color="#2b6cb0"/>
+      <stop offset="100%" stop-color="#38a169"/>
+    </linearGradient>
+    <linearGradient id="ncSoft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#63b3ed"/>
+      <stop offset="100%" stop-color="#38a169"/>
+    </linearGradient>
+  </defs>
+  <rect width="980" height="220" fill="none"/>
+  <g transform="translate(30 28)">
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M58 12 L98 36 L98 84 L58 108 L18 84 L18 36 Z" stroke="url(#ncGradient)" stroke-width="9"/>
+      <path d="M98 36 L136 12" stroke="#63b3ed" stroke-width="8"/>
+      <path d="M98 84 L136 108" stroke="#38a169" stroke-width="8"/>
+      <circle cx="58" cy="12" r="9" fill="#63b3ed"/>
+      <circle cx="98" cy="36" r="9" fill="#63b3ed"/>
+      <circle cx="98" cy="84" r="9" fill="#2b6cb0"/>
+      <circle cx="58" cy="108" r="9" fill="#38a169"/>
+      <circle cx="18" cy="84" r="9" fill="#2b6cb0"/>
+      <circle cx="18" cy="36" r="9" fill="#2b6cb0"/>
+      <rect x="38" y="46" width="40" height="40" rx="6" fill="#f7fafc" stroke="#1a365d" stroke-width="4"/>
+      <path d="M48 54 h20 M48 64 h20 M48 74 h20" stroke="#1a365d" stroke-width="4"/>
+    </g>
+  </g>
+  <text x="230" y="116" font-family="Inter, Arial, sans-serif" font-size="84" font-weight="800" fill="#1a365d">Nexo</text>
+  <text x="446" y="116" font-family="Inter, Arial, sans-serif" font-size="84" font-weight="400" fill="#4a5568">Contable</text>
+  <text x="232" y="160" font-family="Inter, Arial, sans-serif" font-size="21" letter-spacing="6" fill="#4a5568">CONTABILIDAD</text>
+  <text x="412" y="160" font-family="Inter, Arial, sans-serif" font-size="21" letter-spacing="4" fill="#38a169">INTELIGENTE.</text>
+  <text x="570" y="160" font-family="Inter, Arial, sans-serif" font-size="21" letter-spacing="4" fill="#4a5568">DECISIONES CON</text>
+  <text x="785" y="160" font-family="Inter, Arial, sans-serif" font-size="21" letter-spacing="4" fill="#2b6cb0">CONFIANZA.</text>
+</svg>

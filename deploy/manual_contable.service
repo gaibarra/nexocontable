@@ -1,0 +1,34 @@
+# ======================================
+# systemd service - Manual Contable AI
+# ======================================
+# Copiar a: /etc/systemd/system/manual_contable.service
+#
+# Comandos:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable manual_contable
+#   sudo systemctl start manual_contable
+#   sudo systemctl status manual_contable
+#   sudo journalctl -u manual_contable -f
+
+[Unit]
+Description=Manual Contable AI - Gunicorn Django Application
+Documentation=https://github.com/tu-usuario/manual_contable_ai
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=gaibarra
+Group=www-data
+WorkingDirectory=/home/gaibarra/manual_contable_ai
+EnvironmentFile=/home/gaibarra/manual_contable_ai/.env
+
+ExecStart=/home/gaibarra/manual_contable_ai/venv/bin/gunicorn \
+    manual_contable_ai.wsgi:application \
+    --config /home/gaibarra/manual_contable_ai/deploy/gunicorn.conf.py
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

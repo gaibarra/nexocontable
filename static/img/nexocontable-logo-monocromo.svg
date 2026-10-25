@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="NexoContable logo monocromo">
+  <rect width="256" height="256" rx="56" fill="#0b2340"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(8 8)">
+    <path d="M120 26 L160 50 L160 98 L120 122 L80 98 L80 50 Z" stroke="#f7fafc" stroke-width="10"/>
+    <path d="M160 50 L196 26" stroke="#f7fafc" stroke-width="8"/>
+    <path d="M160 98 L196 122" stroke="#f7fafc" stroke-width="8"/>
+    <circle cx="120" cy="26" r="10" fill="#f7fafc"/>
+    <circle cx="160" cy="50" r="10" fill="#f7fafc"/>
+    <circle cx="160" cy="98" r="10" fill="#f7fafc"/>
+    <circle cx="120" cy="122" r="10" fill="#f7fafc"/>
+    <circle cx="80" cy="98" r="10" fill="#f7fafc"/>
+    <circle cx="80" cy="50" r="10" fill="#f7fafc"/>
+    <rect x="100" y="58" width="40" height="40" rx="6" fill="#0b2340" stroke="#f7fafc" stroke-width="4"/>
+    <path d="M110 66 h20 M110 76 h20 M110 86 h20" stroke="#f7fafc" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,143 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}NexoContable — Cuentas y manuales para tu despacho{% endblock %}
+{% block meta_description %}Organiza las cuentas de tus empresas y prepara manuales contables con apoyo de inteligencia artificial. Usa el catálogo SAT o carga el tuyo, revisa y exporta a Word. Acceso gratuito para contadores.{% endblock %}
+
+{% block content %}
+<section class="brand-hero relative overflow-hidden py-12 sm:py-20 lg:py-24 bg-slate-950">
+    <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-900/30 via-transparent to-emerald-900/20" aria-hidden="true"></div>
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
+            <div class="lg:col-span-7 min-w-0">
+                <p class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full mb-6 text-xs font-semibold text-blue-200">
+                    Para contadores independientes y despachos
+                </p>
+                <h1 class="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-6 font-display">
+                    Tu experiencia contable.<br>
+                    <span class="hero-value">Más valor para cada empresa.</span>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-2xl leading-relaxed">
+                    Convierte tu conocimiento en manuales y políticas claras para tus clientes.
+                    La inteligencia artificial prepara el borrador; tú aportas el criterio profesional.
+                    Organiza las cuentas de cada empresa y entrega documentos especializados desde un solo lugar.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="{% url 'registro' %}" class="inline-flex items-center justify-center px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition">Crear mi cuenta gratis →</a>
+                    <a href="#como-funciona" class="inline-flex items-center justify-center px-6 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-xl font-semibold transition">Ver cómo funciona</a>
+                </div>
+                <p class="mt-5 text-sm text-slate-400 leading-relaxed">Puedes empezar con el catálogo SAT, sin subir archivos.</p>
+                <p class="mt-3 text-sm text-slate-400">¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-blue-200 underline underline-offset-4">Iniciar sesión</a></p>
+            </div>
+            <div class="mt-10 lg:mt-0 lg:col-span-5">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-2xl border border-white/10" aria-label="Ejemplo de un manual contable">
+                    <div class="px-5 sm:px-6 py-4 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-sm font-semibold text-slate-700">Manuales de tu empresa</span>
+                        <span class="text-xs text-slate-500">Ejemplo ilustrativo</span>
+                    </div>
+                    <div class="p-5 sm:p-7">
+                        <span class="inline-block text-xs px-3 py-1 rounded-full bg-amber-50 text-amber-800 mb-4">Pendiente de aprobación</span>
+                        <h2 class="text-2xl font-semibold text-slate-900 mb-2">Manual de bancos</h2>
+                        <p class="text-sm text-slate-500 mb-6">Cuenta 1100.01 · Bancos nacionales</p>
+                        <div class="space-y-5 text-sm text-slate-600 leading-relaxed">
+                            <div><h3 class="font-semibold text-slate-900 mb-1">Políticas contables</h3><p>Define los criterios para registrar y controlar los movimientos bancarios de la empresa.</p></div>
+                            <div><h3 class="font-semibold text-slate-900 mb-1">Procedimientos y responsables</h3><p>Documenta cómo realizar la conciliación bancaria y quién revisa las diferencias.</p></div>
+                        </div>
+                        <div class="mt-6 pt-5 border-t border-slate-100">
+                            <p class="text-xs font-semibold text-slate-500 mb-3">DEL BORRADOR AL DOCUMENTO DE TRABAJO</p>
+                            <p class="text-sm text-brand-600 font-semibold leading-relaxed">Revisa y edita → Aprueba → Exporta a Word</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-14 sm:py-20 bg-white" aria-labelledby="beneficios-title">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <div class="max-w-2xl mb-8 sm:mb-12">
+            <h2 id="beneficios-title" class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Herramientas para tu trabajo contable de cada día</h2>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">Desde elegir las cuentas hasta entregar un manual revisado. Cada empresa conserva su propio catálogo, documentos y equipo.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">🏢</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Cada empresa, en su lugar</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Registra las empresas que atiendes y cambia entre ellas desde tu cuenta. En la aplicación las encontrarás en “Mis organizaciones”.</p>
+            </article>
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">📋</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Empieza con el catálogo SAT</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">El catálogo SAT ya está disponible para seleccionar cuentas y generar manuales. Cargar el catálogo de tu empresa es opcional.</p>
+            </article>
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">📤</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Trabaja con tu propio catálogo</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Carga tus cuentas desde Excel o CSV, o agrégalas una a una. Busca el código agrupador SAT por número o nombre y revisa las relaciones sugeridas antes de confirmarlas.</p>
+            </article>
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">📘</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Prepara y revisa tus manuales</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Selecciona las cuentas y genera un borrador con inteligencia artificial según el giro y régimen fiscal de la empresa. Revísalo, edítalo y apruébalo antes de utilizarlo.</p>
+            </article>
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">📄</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Lleva el documento contigo</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Consulta las cuentas incluidas en cada manual y su estado de aprobación. Descárgalo en Word o usa la opción de impresión para guardarlo como PDF.</p>
+            </article>
+            <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="text-2xl" aria-hidden="true">👥</span>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Colabora desde donde estés</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Agrega a tus colegas al equipo de cada empresa y asigna su función. Trabaja desde tu computadora o consulta cuentas y manuales desde el celular.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section id="como-funciona" class="py-14 sm:py-20 bg-slate-50 scroll-mt-6" aria-labelledby="pasos-title">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <h2 id="pasos-title" class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">Empieza en tres pasos</h2>
+        <p class="text-slate-600 mb-8">No necesitas conocimientos de tecnología. Solo la información de la empresa con la que vas a trabajar.</p>
+        <ol class="grid md:grid-cols-3 gap-6 sm:gap-8">
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">1</span><h3 class="text-xl font-semibold mb-2">Crea tu cuenta y registra una empresa</h3><p class="text-sm text-slate-600 leading-relaxed">Captura tus datos de acceso y los datos de la empresa o despacho, como su nombre, giro y régimen fiscal.</p></li>
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">2</span><h3 class="text-xl font-semibold mb-2">Elige las cuentas que necesitas</h3><p class="text-sm text-slate-600 leading-relaxed">Usa el catálogo SAT disponible o carga tu catálogo y confirma qué código SAT corresponde a cada cuenta que vas a utilizar.</p></li>
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">3</span><h3 class="text-xl font-semibold mb-2">Genera, revisa y comparte</h3><p class="text-sm text-slate-600 leading-relaxed">Prepara el borrador del manual, adapta las políticas a la operación real de la empresa y exporta el documento cuando esté revisado.</p></li>
+        </ol>
+        <a href="{% url 'registro' %}" class="inline-flex items-center justify-center mt-8 px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">Crear mi cuenta gratis →</a>
+    </div>
+</section>
+
+<section class="py-14 sm:py-20 bg-white" aria-labelledby="preguntas-title">
+    <div class="max-w-3xl mx-auto px-5 sm:px-6">
+        <h2 id="preguntas-title" class="text-3xl font-bold text-slate-900 mb-6">Antes de empezar</h2>
+        <div class="divide-y divide-slate-200">
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Necesito subir mi catálogo de cuentas?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">No. Puedes generar manuales con las cuentas del catálogo SAT que ya está disponible. Si prefieres trabajar con las claves y descripciones de tu empresa, puedes cargar tu catálogo en Excel o CSV.</p></details>
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Puedo trabajar con varias empresas?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">Sí. Registra cada empresa en “Mis organizaciones” y selecciona aquella con la que quieras trabajar. Cada una tiene su catálogo, manuales y equipo.</p></details>
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿El manual está listo para usarse al generarlo?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">Se genera un borrador para tu revisión. Comprueba que las políticas, procedimientos y referencias sean adecuados para la empresa, realiza los ajustes necesarios y aprueba el documento con tu criterio profesional.</p></details>
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Tiene algún costo?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">El acceso a la plataforma es gratuito. Si quieres apoyar los gastos de operación y el acceso a la inteligencia artificial, puedes hacer un donativo voluntario.</p></details>
+        </div>
+    </div>
+</section>
+
+<section class="py-14 sm:py-20 bg-slate-950">
+    <div class="max-w-3xl mx-auto px-5 sm:px-6 text-center">
+        <p class="text-xs font-semibold text-purple-300 uppercase tracking-widest mb-4">De colegas para colegas</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-5">Una herramienta gratuita para la comunidad contable</h2>
+        <p class="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed">Los donativos ayudan a mantener la plataforma y el acceso a la inteligencia artificial. Si NexoContable te resulta útil, puedes contribuir al proyecto.</p>
+        <a href="{% url 'donar' %}" class="inline-flex items-center justify-center px-6 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-semibold transition">💜 Apoyar el proyecto</a>
+        <p class="mt-4 text-sm text-slate-400">Donativo voluntario a través de Mercado Pago.</p>
+    </div>
+</section>
+
+<footer class="py-8 bg-slate-950 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="text-center md:text-left"><p class="text-white font-semibold text-lg mb-1">NexoContable</p><p class="text-slate-400 text-sm">Tus cuentas, manuales y equipo en un solo lugar.</p></div>
+        <div class="flex flex-wrap justify-center gap-5 text-sm text-slate-400">
+            <a href="{% url 'registro' %}" class="hover:text-white">Crear cuenta</a>
+            <a href="{% url 'login' %}" class="hover:text-white">Iniciar sesión</a>
+            <a href="mailto:soporte@manualcontable.online" class="hover:text-white">Contacto</a>
+        </div>
+        <p class="text-slate-400 text-xs">© {% now "Y" %} NexoContable</p>
+    </div>
+</footer>
+{% endblock %}

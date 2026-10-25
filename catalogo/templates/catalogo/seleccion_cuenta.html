@@ -1,0 +1,34 @@
+<div data-manual-account="{{ cuenta.id }}" data-mostrar-sat="{{ mostrar_sat|yesno:'true,false' }}" class="p-2 rounded {% if not cuenta.codigoagrupador or cuenta.relacion_sugerida %}bg-gray-50{% endif %}">
+    <label class="flex items-start gap-2 {% if cuenta.codigoagrupador and not cuenta.relacion_sugerida %}cursor-pointer{% endif %}">
+        <input type="checkbox" name="cuentas" value="{{ cuenta.id }}" data-account-id="{{ cuenta.id }}"
+            {% if not cuenta.codigoagrupador or cuenta.relacion_sugerida %}disabled{% endif %}
+            class="mt-1 h-4 w-4 text-brand-600 rounded">
+        <span class="min-w-0">
+            <span class="font-mono text-sm font-medium">{{ cuenta.cuenta }}</span>
+            <span class="text-sm text-gray-600 block">{{ cuenta.descripcion }}</span>
+            <span data-account-sat class="block mt-1 text-xs text-gray-600" {% if not mostrar_sat or not cuenta.codigoagrupador %}hidden{% endif %}>{% if cuenta.codigoagrupador %}SAT: <strong>{{ cuenta.codigoagrupador.codigoagrupador }}</strong> — {{ cuenta.codigoagrupador.nombre }}{% endif %}</span>
+            {% if cuenta.codigoagrupador %}
+                {% if cuenta.relacion_sugerida %}
+                <span data-account-status class="block mt-1 text-xs font-medium text-amber-700" role="status" aria-live="polite">Vinculación sugerida · pendiente de confirmar</span>
+                {% else %}
+                <span data-account-status class="block mt-1 text-xs font-medium text-green-700" role="status" aria-live="polite">Vinculación confirmada</span>
+                {% endif %}
+            {% else %}
+                <span data-account-status class="block mt-1 text-xs font-medium text-red-700">Falta vinculación SAT</span>
+            {% endif %}
+        </span>
+    </label>
+    {% if cuenta.codigoagrupador and cuenta.relacion_sugerida %}
+    <button type="button" data-confirmar-sugerencia data-account-action data-account-id="{{ cuenta.id }}"
+        data-codigo-sat="{{ cuenta.codigoagrupador.codigoagrupador }}" data-url="{% url 'confirmar_relacion' cuenta.id %}"
+        class="ml-6 mt-2 px-3 py-1.5 rounded-lg border border-blue-200 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Confirmar vinculación
+    </button>
+    {% elif not cuenta.codigoagrupador %}
+    <button type="button" data-vincular-sat data-account-action data-account-id="{{ cuenta.id }}"
+        data-cuenta="{{ cuenta.cuenta }}" data-url="{% url 'confirmar_relacion' cuenta.id %}"
+        class="ml-6 mt-2 px-3 py-1.5 rounded-lg border border-blue-200 text-sm font-medium text-blue-700 hover:bg-blue-50">
+        Vincular al SAT
+    </button>
+    {% endif %}
+</div>

@@ -1,0 +1,66 @@
+{% extends "base_app.html" %}
+{% block title %}Mi perfil CPC — Manual Contable AI{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">👤 Mi perfil profesional</h1>
+        <p class="text-gray-500 mt-1">{{ user.email }}</p>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-5">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+            {{ form.nombre_completo }}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cédula profesional</label>
+                {{ form.cedula_profesional }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Certificación IMCP</label>
+                {{ form.numero_certificacion }}
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
+                {{ form.especialidad }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Colegio afiliado</label>
+                {{ form.colegio_afiliado }}
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                {{ form.ciudad }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                {{ form.estado }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Años de experiencia</label>
+                {{ form.anios_experiencia }}
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                {{ form.telefono }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                {{ form.linkedin_url }}
+            </div>
+        </div>
+        <button type="submit" class="gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition">
+            Guardar cambios
+        </button>
+    </form>
+</div>
+{% endblock %}

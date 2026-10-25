@@ -1,0 +1,4 @@
+<div class="row-actions" aria-label="Acciones de {{ nombre }} #{{ registro.pk }}">
+<a href="{% url 'panel:registro_ver' tipo registro.pk %}" aria-label="Ver {{ nombre }} #{{ registro.pk }}">Ver</a>
+{% if editable %}<a href="{% url 'panel:registro_editar' tipo registro.pk %}" aria-label="Editar {{ nombre }} #{{ registro.pk }}">Editar</a><a class="delete-link" href="{% url 'panel:registro_eliminar' tipo registro.pk %}" aria-label="Eliminar {{ nombre }} #{{ registro.pk }}">Eliminar</a>{% endif %}
+</div>
