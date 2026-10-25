@@ -1,6 +1,6 @@
-<div data-account-search-row data-manual-account="{{ cuenta.id }}" data-mostrar-sat="{{ mostrar_sat|yesno:'true,false' }}" class="p-2 rounded {% if not cuenta.codigoagrupador or cuenta.relacion_sugerida %}bg-gray-50{% endif %}">
+<div data-account-search-row data-account-code="{{ cuenta.cuenta }}" data-account-name="{{ cuenta.descripcion }}" data-manual-account="{{ cuenta.id }}" data-mostrar-sat="{{ mostrar_sat|yesno:'true,false' }}" class="p-2 rounded {% if not cuenta.codigoagrupador or cuenta.relacion_sugerida %}bg-gray-50{% endif %}">
     <label class="flex items-start gap-2 {% if cuenta.codigoagrupador and not cuenta.relacion_sugerida %}cursor-pointer{% endif %}">
-        <input type="checkbox" name="cuentas" value="{{ cuenta.id }}" data-account-id="{{ cuenta.id }}"
+        <input type="radio" name="cuentas" value="{{ cuenta.id }}" data-account-id="{{ cuenta.id }}"
             {% if not cuenta.codigoagrupador or cuenta.relacion_sugerida %}disabled{% endif %}
             class="mt-1 h-4 w-4 text-brand-600 rounded">
         <span class="min-w-0">

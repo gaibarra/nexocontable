@@ -277,3 +277,10 @@ EMAIL_TIMEOUT = 10
 PRIVACY_CONTROLLER_NAME = config('PRIVACY_CONTROLLER_NAME', default='C.P. Gonzalo Arturo Ibarra Mendoza')
 PRIVACY_CONTROLLER_ADDRESS = config('PRIVACY_CONTROLLER_ADDRESS', default='Calle 14 núm. 361, colonia Pedregales de Tanlum, Mérida, Yucatán, México, C.P. 97210')
 PRIVACY_CONTACT_EMAIL = config('PRIVACY_CONTACT_EMAIL', default='proyectog40@gmail.com')
+
+# Checkout Pro mediante Preferences; nunca mezclar pruebas con pagos reales.
+MERCADOPAGO_BASE_URL = config('MERCADOPAGO_BASE_URL', default='https://manualcontable.online').rstrip('/')
+MERCADOPAGO_SANDBOX = config('MERCADOPAGO_SANDBOX', default=MERCADOPAGO_ACCESS_TOKEN.startswith('TEST-'), cast=bool)
+MERCADOPAGO_COLLECTOR_ID = config('MERCADOPAGO_COLLECTOR_ID', default='')
+# Opcional: por defecto se permiten reintentos tardíos firmados del proveedor.
+MERCADOPAGO_WEBHOOK_TOLERANCE_SECONDS = config('MERCADOPAGO_WEBHOOK_TOLERANCE_SECONDS', default=0, cast=int)

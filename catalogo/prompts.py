@@ -41,7 +41,8 @@ PROFESSIONAL_STYLE_BLOCK = """Estilo y formato:
 - Presenta el código y la descripción de cada cuenta una sola vez al abrir su sección. Evita repetir la misma descripción como subtítulo y como ficha de código SAT; distingue el código SAT cuando sea diferente al de la cuenta.
 - Usa encabezados consistentes y secciones numeradas.
 - Prioriza claridad operativa para contador, auditor y dirección financiera.
-- Mantén una estructura homogénea para todas las cuentas.
+- Este documento desarrolla exclusivamente la cuenta seleccionada. No amplíes el alcance a otras cuentas; las contrapartidas solo aparecen en los ejemplos.
+- Planifica un documento de aproximadamente 1400 a 1800 palabras, con todas las secciones, los dos casos de materialidad y los dos ejemplos contables completos. Distribuye el espacio entre las secciones antes de redactar y reserva margen para las conclusiones y referencias. Evita repetir explicaciones y no prolongues una sección a costa de dejar incompletas las restantes.
 - Usa listas y tablas solo cuando mejoren la lectura.
 """
 

@@ -1,46 +1,10 @@
 {% extends "base_public.html" %}
-{% block title %}{% if exito %}¡Gracias!{% else %}Error{% endif %} — Manual Contable AI{% endblock %}
-
+{% block title %}{% if exito %}Donativo confirmado{% elif pendiente %}Verificando donativo{% else %}Estado del donativo{% endif %} — Manual Contable AI{% endblock %}
 {% block content %}
-<div class="max-w-lg mx-auto py-16 text-center">
-    {% if exito %}
-    <div class="text-7xl mb-6">🎉</div>
-    <h1 class="text-3xl font-bold text-gray-900 mb-3">
-        {% if pendiente %}¡Donativo pendiente!{% else %}¡Muchas gracias!{% endif %}
-    </h1>
-    <p class="text-gray-500 text-lg mb-8">
-        {% if pendiente %}
-        Tu donativo está siendo procesado. Te llegará confirmación por email.
-        {% else %}
-        Tu apoyo mantiene esta plataforma gratuita para toda la comunidad contable. 💜
-        {% endif %}
-    </p>
-    {% else %}
-    <div class="text-7xl mb-6">😔</div>
-    <h1 class="text-3xl font-bold text-gray-900 mb-3">No se pudo procesar</h1>
-    <p class="text-gray-500 text-lg mb-8">
-        Hubo un problema con el pago. Puedes intentar de nuevo cuando quieras.
-    </p>
-    {% endif %}
-
-    <div class="flex justify-center gap-4">
-        {% if user.is_authenticated %}
-        <a href="{% url 'dashboard' %}"
-            class="gradient-bg text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition">
-            Ir al dashboard
-        </a>
-        {% else %}
-        <a href="{% url 'landing' %}"
-            class="gradient-bg text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition">
-            Volver al inicio
-        </a>
-        {% endif %}
-        {% if not exito %}
-        <a href="{% url 'donar' %}"
-            class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition">
-            Intentar de nuevo
-        </a>
-        {% endif %}
-    </div>
+<div class="max-w-lg mx-auto py-16 px-5 text-center">
+{% if exito %}<div class="text-6xl mb-6" aria-hidden="true">💜</div><h1 class="text-3xl font-bold text-gray-900 mb-3">¡Muchas gracias!</h1><p class="text-gray-500 text-lg mb-8">{% if estado_pago == 'parcial' %}Tu donativo tiene un reembolso parcial registrado.{% else %}Mercado Pago confirmó tu donativo. Tu apoyo ayuda a mantener la plataforma.{% endif %}</p>
+{% elif pendiente %}<h1 class="text-3xl font-bold text-gray-900 mb-3">Estamos verificando tu donativo</h1><p class="text-gray-500 text-lg mb-8">{% if verificable %}Aún no hemos recibido una confirmación definitiva de Mercado Pago.{% else %}El regreso a esta página no confirma un pago. Revisa el estado de la operación en Mercado Pago.{% endif %} Si ya realizaste el pago, evita repetirlo mientras verificas su estado.</p><button type="button" onclick="window.location.reload()" class="gradient-bg text-white px-5 py-3 rounded-lg mb-6">Actualizar estado</button>
+{% else %}<h1 class="text-3xl font-bold text-gray-900 mb-3">{% if estado_pago == 'reembolsado' %}Donativo reembolsado{% elif estado_pago == 'contracargo' %}Pago con contracargo{% elif estado_pago == 'en_revision' %}Pago en revisión{% else %}Donativo no confirmado{% endif %}</h1><p class="text-gray-500 text-lg mb-8">Consulta el detalle de la operación en Mercado Pago. Para aclaraciones, escribe a <a class="underline" href="mailto:proyectog40@gmail.com">proyectog40@gmail.com</a>.</p>{% endif %}
+<div class="flex flex-wrap justify-center gap-4"><a href="{% url 'landing' %}" class="gradient-bg text-white px-6 py-3 rounded-lg font-medium">Volver al inicio</a>{% if not pendiente and not exito %}<a href="{% url 'donar' %}" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg">Volver a donativos</a>{% endif %}</div>
 </div>
 {% endblock %}

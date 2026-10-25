@@ -32,21 +32,48 @@ class GestionManualesTests(TestCase):
         generar.assert_not_called()
         self.assertEqual(self.tenant.manuales.count(), 1)
 
-    def test_el_orden_y_los_ids_repetidos_no_cambian_el_alcance(self):
+    def test_rechaza_varias_cuentas_aunque_exista_un_manual_de_ese_alcance(self):
         otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra caja', codigoagrupador=self.codigo)
         manual = self.manual([self.cuenta, otra])
         with patch('catalogo.views.generar_contenido_manual') as generar:
             response = self.generar([otra.pk, self.cuenta.pk, otra.pk])
+        self.assertRedirects(response, reverse('generar_manual'))
+        generar.assert_not_called()
+        self.assertEqual(self.tenant.manuales.count(), 1)
+
+    def test_rechaza_dos_cuentas_validas_sin_consumir_ia(self):
+        otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra caja', codigoagrupador=self.codigo)
+        with patch('catalogo.views.generar_contenido_manual') as generar, patch('panel.controls.reservar_generacion') as reservar:
+            response = self.generar([self.cuenta.pk, otra.pk])
+        self.assertRedirects(response, reverse('generar_manual'))
+        generar.assert_not_called(); reservar.assert_not_called()
+        self.assertFalse(self.tenant.manuales.exists())
+
+    def test_rechaza_dos_cuentas_sat_sin_consumir_ia(self):
+        from .models import CodigoAgrupador
+        otra = CodigoAgrupador.objects.create(nivel=1, codigoagrupador='102', nombre='Bancos')
+        self.cuenta.delete()
+        with patch('catalogo.views.generar_contenido_manual') as generar:
+            response = self.generar([f'sat:{self.codigo.pk}', f'sat:{otra.pk}'])
+        self.assertRedirects(response, reverse('generar_manual'))
+        generar.assert_not_called()
+        self.assertFalse(self.tenant.manuales.exists())
+
+    def test_funcion_de_generacion_rechaza_alcance_multiple(self):
+        from .views import generar_contenido_manual, ManualGenerationError
+        with patch('catalogo.views.generar_texto') as ia:
+            with self.assertRaises(ManualGenerationError):
+                generar_contenido_manual([self.cuenta, self.cuenta], self.tenant)
+        ia.assert_not_called()
+
+    def test_cuenta_cubierta_por_manual_conjunto_no_se_duplica(self):
+        otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra caja', codigoagrupador=self.codigo)
+        manual = self.manual([self.cuenta, otra])
+        with patch('catalogo.views.generar_contenido_manual', return_value='Nuevo contenido') as generar:
+            response = self.generar([self.cuenta.pk])
         self.assertRedirects(response, reverse('detalle_manual', args=[manual.pk]))
         generar.assert_not_called()
-
-    def test_un_subconjunto_es_otro_manual(self):
-        otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra caja', codigoagrupador=self.codigo)
-        self.manual([self.cuenta, otra])
-        with patch('catalogo.views.generar_contenido_manual', return_value='Nuevo contenido') as generar:
-            self.generar([self.cuenta.pk])
-        generar.assert_called_once()
-        self.assertEqual(self.tenant.manuales.count(), 2)
+        self.assertEqual(self.tenant.manuales.count(), 1)
 
     def test_no_compara_solo_el_titulo(self):
         self.manual([], titulo='Manual: 1000')
@@ -88,6 +115,52 @@ class GestionManualesTests(TestCase):
         self.assertEqual(buscar_manual_existente(self.tenant, [self.cuenta], False), aprobado)
         aprobado.delete()
         self.assertIsNotNone(buscar_manual_existente(self.tenant, [self.cuenta], False))
+
+    def test_aprobado_en_manual_conjunto_bloquea_y_no_reserva_ia(self):
+        from django.contrib.messages import get_messages, WARNING
+        otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra', codigoagrupador=self.codigo)
+        aprobado = self.manual([self.cuenta, otra], aprobado=True)
+        self.manual()
+        with patch('catalogo.views.generar_contenido_manual') as generar, patch('panel.controls.reservar_generacion') as reservar:
+            response = self.generar([self.cuenta.pk])
+        self.assertRedirects(response, reverse('detalle_manual', args=[aprobado.pk]))
+        generar.assert_not_called(); reservar.assert_not_called()
+        avisos = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(m.level == WARNING and 'aprobado' in str(m) for m in avisos))
+        estado = self.client.get(reverse('generar_manual')).context['estados_manuales'][str(self.cuenta.pk)]
+        self.assertEqual(estado, {'estado': 'aprobado', 'url': reverse('detalle_manual', args=[aprobado.pk])})
+
+    def test_borrador_advierte_y_abre_existente(self):
+        from django.contrib.messages import get_messages, WARNING
+        borrador = self.manual()
+        with patch('catalogo.views.generar_contenido_manual') as generar:
+            response = self.generar([self.cuenta.pk])
+        self.assertRedirects(response, reverse('detalle_manual', args=[borrador.pk]))
+        generar.assert_not_called()
+        self.assertTrue(any(m.level == WARNING and 'borrador' in str(m) for m in get_messages(response.wsgi_request)))
+        self.assertEqual(self.client.get(reverse('generar_manual')).context['estados_manuales'][str(self.cuenta.pk)]['estado'], 'borrador')
+
+    def test_aprobado_sat_se_reconoce_al_usar_catalogo_propio(self):
+        aprobado = self.manual([], aprobado=True)
+        aprobado.codigos_sat.add(self.codigo)
+        with patch('catalogo.views.generar_contenido_manual') as generar:
+            response = self.generar([self.cuenta.pk])
+        self.assertRedirects(response, reverse('detalle_manual', args=[aprobado.pk]))
+        generar.assert_not_called()
+        self.assertEqual(self.client.get(reverse('generar_manual')).context['estados_manuales'][str(self.cuenta.pk)]['estado'], 'aprobado')
+
+    def test_cuentas_propias_distintas_con_mismo_sat_no_se_confunden(self):
+        otra = CatalogoCuentas.objects.create(tenant=self.tenant, cuenta='1001', descripcion='Otra', codigoagrupador=self.codigo)
+        self.manual([otra], aprobado=True)
+        with patch('catalogo.views.generar_contenido_manual', return_value='Nuevo contenido') as generar:
+            self.generar([self.cuenta.pk])
+        generar.assert_called_once()
+        self.assertEqual(self.tenant.manuales.count(), 2)
+
+    def test_indice_no_revela_manuales_de_otra_organizacion(self):
+        otra = Tenant.objects.create(nombre='Privada', propietario=self.user)
+        self.manual([self.cuenta], tenant=otra, aprobado=True)
+        self.assertEqual(self.client.get(reverse('generar_manual')).context['estados_manuales'], {})
 
     def test_dashboard_muestra_alcance_autor_y_acciones(self):
         manual = self.manual()

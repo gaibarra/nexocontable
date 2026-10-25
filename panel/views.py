@@ -8,8 +8,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction, connection
-from django.db.models import Count, Q, Sum
-from django.db.models.functions import TruncDate
+from django.db.models import Count, Q, Sum, F
+from django.db.models.functions import TruncDate, Coalesce
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -123,7 +123,7 @@ def inicio(request):
         'titulo': 'Vista de mando', 'resumen': resumen, 'serie': serie, 'etapas': etapas,
         'usuarios': get_user_model().objects.count(), 'organizaciones': Tenant.objects.count(),
         'activos': get_user_model().objects.filter(last_login__gte=desde, is_active=True).count(),
-        'donativos': Donativo.objects.filter(estado='aprobado').aggregate(n=Sum('monto'))['n'] or 0,
+        'donativos': Donativo.objects.filter(estado__in=['aprobado', 'parcial']).aggregate(n=Sum(Coalesce('monto_confirmado', F('monto') - F('monto_reembolsado'))))['n'] or 0,
         'eventos': Evento.objects.select_related('actor')[:8],
         'tareas': Tarea.objects.filter(completada=False).select_related('contacto')[:5],
     })
@@ -329,7 +329,7 @@ def inteligencia(request):
 def donativos(request):
     qs = Donativo.objects.all()
     return render(request, 'panel/donativos.html', {'titulo': 'Donativos', 'donativos': pagina(request, qs),
-                  'total': qs.filter(estado='aprobado').aggregate(n=Sum('monto'))['n'] or 0,
+                  'total': qs.filter(estado__in=['aprobado', 'parcial']).aggregate(n=Sum(Coalesce('monto_confirmado', F('monto') - F('monto_reembolsado'))))['n'] or 0,
                   'pendientes': qs.filter(estado='pendiente').count()})
 
 

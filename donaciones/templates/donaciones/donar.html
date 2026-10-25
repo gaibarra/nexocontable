@@ -1,4 +1,5 @@
 {% extends "base_public.html" %}
+{% load static %}
 {% block title %}Apoyar el proyecto — Manual Contable AI{% endblock %}
 
 {% block content %}
@@ -12,23 +13,23 @@
         </p>
     </div>
 
-    {% if total_donantes > 0 %}
-    <div class="flex justify-center gap-8 mb-10">
-        <div class="text-center">
-            <p class="text-2xl font-bold text-brand-600">{{ total_donantes }}</p>
-            <p class="text-sm text-gray-500">Colaboradores</p>
-        </div>
-        <div class="text-center">
-            <p class="text-2xl font-bold text-green-600">${{ total_recaudado|floatformat:0 }}</p>
-            <p class="text-sm text-gray-500">Recaudado</p>
-        </div>
+    <div class="text-center mb-10">
+        <p class="text-2xl font-bold text-brand-600" data-colaboradores>{{ total_colaboradores }}</p>
+        <p class="text-sm text-gray-500">Colaboradores</p>
+        <p class="text-xs text-gray-400 mt-1">Base de colaboradores con donativo confirmado.</p>
     </div>
-    {% endif %}
 
     <form method="post" class="bg-white rounded-2xl shadow-lg p-5 sm:p-8">
         {% csrf_token %}
+        <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+        <details class="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4" data-donation-privacy>
+            <summary class="cursor-pointer text-sm font-medium text-slate-700 min-h-11 flex items-center gap-2"><span aria-hidden="true">▸</span> Ver privacidad y uso de tus datos</summary>
+            <div class="mt-4">
         <div class="mb-5">{% include "legal/resumen.html" %}</div>
         <p class="text-xs text-slate-600 leading-relaxed mb-5">Al continuar, solicitas el procesamiento de tu donativo y consientes el tratamiento necesario de sus datos de identificación y operación. El pago se realiza en Mercado Pago, conforme a su política. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#datos">Consulta el aviso de privacidad</a> y ejerce tus derechos en <a class="underline text-brand-700" href="mailto:{{ privacidad.correo }}">{{ privacidad.correo }}</a>.</p>
+
+            </div>
+        </details>
 
         <h2 class="font-semibold text-gray-900 mb-4">Selecciona un monto (MXN)</h2>
 
@@ -47,7 +48,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">O escribe otro monto:</label>
             <div class="relative">
                 <span class="absolute left-4 top-3 text-gray-400 font-medium">$</span>
-                <input type="number" name="monto_custom" min="10" step="1" placeholder="Otro monto"
+                <input type="number" name="monto_custom" min="10" max="100000" step="0.01" placeholder="Otro monto"
                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent">
             </div>
         </div>
@@ -60,6 +61,26 @@
             transferencia y OXXO.</p>
     </form>
 
+    <details id="bank-transfer-option" class="mt-5 bg-white rounded-2xl border border-emerald-200 shadow-sm">
+        <summary class="cursor-pointer list-none flex items-center justify-center gap-3 p-5 text-emerald-900 rounded-2xl hover:bg-emerald-50">
+            <svg class="shrink-0" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 9-5 9 5M3 9h18M5 12v6m5-6v6m4-6v6m5-6v6M3 21h18"/></svg>
+            <span class="text-center"><strong class="block text-sm sm:text-base">Donar por transferencia</strong><span class="block text-xs mt-1">Banco del Bienestar</span></span>
+            <span class="text-lg shrink-0" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="border-t border-emerald-100 p-5 sm:p-6">
+            <p class="text-sm text-slate-600 mb-4">Puedes realizar tu donativo desde tu aplicación bancaria con los siguientes datos.</p>
+            <p class="text-xs text-slate-500 mb-1">Banco</p>
+            <p class="text-sm font-semibold text-slate-800 mb-4">Banco del Bienestar</p>
+            <label for="donation-bank-clabe" class="block text-xs font-medium text-slate-600 mb-2">CLABE interbancaria</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input id="donation-bank-clabe" type="text" value="166910014796907848" readonly autocomplete="off" spellcheck="false" class="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 font-mono text-base tracking-wider text-slate-900 select-all" aria-describedby="bank-copy-status">
+                <button type="button" id="copy-donation-clabe" class="sm:shrink-0 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800">Copiar CLABE</button>
+            </div>
+            <p id="bank-copy-status" role="status" aria-live="polite" class="text-xs text-emerald-800 mt-2 min-h-5"></p>
+            <p class="text-xs text-slate-500 mt-3">Para consultas sobre tu transferencia: <a class="underline text-brand-700" href="mailto:proyectog40@gmail.com">proyectog40@gmail.com</a>.</p>
+        </div>
+    </details>
+
     <div class="mt-8 bg-gray-50 rounded-xl p-6 text-center">
         <p class="text-sm text-gray-500">
             🔒 Tu donativo es voluntario y no genera obligación fiscal ni recurrencia.<br>
@@ -67,4 +88,8 @@
         </p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/donation-bank.js' %}" defer></script>
 {% endblock %}

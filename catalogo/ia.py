@@ -92,8 +92,8 @@ def generar_texto(system_prompt, prompt):
                     getattr(getattr(response, 'usage', None), 'completion_tokens', None))
                 if motivo == 'length':
                     mensaje = ('El manual excedió el límite de extensión y quedó incompleto. '
-                               'Selecciona menos cuentas para generar un manual completo; '
-                               'el administrador también puede ampliar el límite de generación.')
+                               'No se guardó un documento parcial. Vuelve a intentarlo; '
+                               'si persiste, contacta al administrador para revisar la extensión.')
                 elif motivo == 'content_filter':
                     mensaje = ('El servicio de IA no pudo completar esta solicitud por un filtro de contenido. '
                                'Revisa las descripciones de las cuentas seleccionadas.')

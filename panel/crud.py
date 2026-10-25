@@ -43,7 +43,7 @@ def configuracion(tipo):
 
 
 def es_pago_externo(obj):
-    return bool(obj.referencia_mp or obj.preference_id or obj.datos_webhook)
+    return bool(obj.checkout_clave or obj.referencia_mp or obj.preference_id or obj.datos_webhook)
 
 
 def protegido(tipo, obj, user):
@@ -217,7 +217,7 @@ def ver(request, tipo, pk):
         'organizacion': ['nombre', 'propietario', 'rfc', 'giro', 'regimen_fiscal', 'ciudad', 'estado', 'telefono', 'activo', 'fecha_creacion'],
         'nota': ['texto', 'autor', 'fecha', 'contacto'],
         'tarea': ['titulo', 'contacto', 'responsable', 'vence', 'completada'],
-        'donativo': ['nombre_donante', 'email_donante', 'monto', 'estado', 'fecha', 'referencia_mp'],
+        'donativo': ['nombre_donante', 'email_donante', 'monto', 'monto_confirmado', 'monto_reembolsado', 'estado', 'fecha', 'referencia_mp', 'pago_actualizado_en'],
         'evento': ['fecha', 'actor', 'categoria', 'accion', 'referencia', 'organizacion_id', 'detalle', 'estado_http', 'duracion_ms'],
         'consumo': ['fecha', 'usuario', 'tenant', 'tokens_entrada', 'tokens_salida', 'tokens_total', 'total_parcial', 'manual_generado'],
     }

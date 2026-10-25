@@ -343,7 +343,14 @@ def eliminar_cuenta(request, pk):
 # =========================================
 
 def buscar_manual_existente(tenant, cuentas, usar_sat):
-    """El alcance es el conjunto exacto de cuentas, independientemente del orden."""
+    """Una cuenta ya cubierta por un manual se reutiliza, incluso en manuales previos conjuntos."""
+    cuentas = list(cuentas)
+    if len(cuentas) == 1:
+        cuenta = cuentas[0]
+        sat_id = cuenta.codigoagrupador.pk if usar_sat else cuenta.codigoagrupador_id
+        match = (Q(codigos_sat__pk=sat_id) | Q(cuentas__codigoagrupador_id=sat_id)) if usar_sat else (Q(cuentas__pk=cuenta.pk) | Q(codigos_sat__pk=sat_id))
+        return (ManualContable.objects.filter(tenant=tenant).filter(match).distinct()
+                .order_by('-aprobado', '-fecha_creacion', '-pk').first())
     relation = 'codigos_sat' if usar_sat else 'cuentas'
     opposite = 'cuentas' if usar_sat else 'codigos_sat'
     ids = {c.codigoagrupador.pk if usar_sat else c.pk for c in cuentas}
@@ -353,6 +360,40 @@ def buscar_manual_existente(tenant, cuentas, usar_sat):
                       otras=Count(opposite, distinct=True))
             .filter(total=len(ids), coincidentes=len(ids), otras=0)
             .order_by('-aprobado', '-fecha_creacion').first())
+
+
+def advertir_manual_existente(request, manual):
+    if manual.aprobado:
+        messages.warning(request, 'Esta cuenta ya tiene un manual aprobado. No se puede generar otro; abrimos el manual vigente.')
+    else:
+        messages.warning(request, 'Ya existe un borrador para esta cuenta. Revísalo antes de continuar; abrimos el borrador existente.')
+    return redirect('detalle_manual', pk=manual.pk)
+
+
+def estados_manuales_por_cuenta(tenant, cuentas, usar_sat):
+    """Mismo alcance del bloqueo del servidor, con consultas agrupadas por organización."""
+    propias, sat_directo, sat_total = {}, {}, {}
+    for manual in (ManualContable.objects.filter(tenant=tenant)
+                   .order_by('-aprobado', '-fecha_creacion', '-pk')
+                   .prefetch_related('cuentas', 'codigos_sat')):
+        datos = {'estado': 'aprobado' if manual.aprobado else 'borrador',
+                 'url': reverse('detalle_manual', args=[manual.pk])}
+        for cuenta in manual.cuentas.all():
+            propias.setdefault(cuenta.pk, datos)
+            sat_total.setdefault(cuenta.codigoagrupador_id, datos)
+        for codigo in manual.codigos_sat.all():
+            sat_directo.setdefault(codigo.pk, datos)
+            sat_total.setdefault(codigo.pk, datos)
+    resultado = {}
+    for cuenta in cuentas:
+        if usar_sat:
+            candidatos = [sat_total.get(cuenta.codigoagrupador.pk)]
+        else:
+            candidatos = [propias.get(cuenta.pk), sat_directo.get(cuenta.codigoagrupador_id)]
+        candidatos = [dato for dato in candidatos if dato]
+        if candidatos:
+            resultado[str(cuenta.id)] = next((dato for dato in candidatos if dato['estado'] == 'aprobado'), candidatos[0])
+    return resultado
 
 
 @login_required
@@ -372,7 +413,11 @@ def generar_manual(request):
     if request.method == 'POST':
         cuentas_ids = request.POST.getlist('cuentas')
         if not cuentas_ids:
-            messages.warning(request, 'Selecciona al menos una cuenta para generar el manual.')
+            messages.warning(request, 'Selecciona una cuenta para generar su manual.')
+            return redirect('generar_manual')
+
+        if len(cuentas_ids) != 1:
+            messages.warning(request, 'Solo puedes generar el manual de una cuenta a la vez. Selecciona una sola cuenta para disponer de suficiente espacio.')
             return redirect('generar_manual')
 
         if usar_sat:
@@ -393,8 +438,7 @@ def generar_manual(request):
 
         existente = buscar_manual_existente(tenant, cuentas_seleccionadas, usar_sat)
         if existente:
-            messages.info(request, 'Ya existe un manual para estas cuentas en esta organización. Puedes editarlo, exportarlo o imprimirlo.')
-            return redirect('detalle_manual', pk=existente.pk)
+            return advertir_manual_existente(request, existente)
 
         from panel.controls import reservar_generacion
         impedimento = reservar_generacion(request.user)
@@ -426,8 +470,7 @@ def generar_manual(request):
                     if registro_ia:
                         registro_ia.manual = existente
                         registro_ia.save(update_fields=['manual'])
-                    messages.info(request, 'Este manual ya se ha generado. Abrimos el existente.')
-                    return redirect('detalle_manual', pk=existente.pk)
+                    return advertir_manual_existente(request, existente)
                 manual = ManualContable.objects.create(
                     tenant=tenant, titulo=titulo, contenido=contenido_generado,
                     creado_por=request.user,
@@ -475,6 +518,7 @@ def generar_manual(request):
         'resumen_ia': resumen_uso(request.user),
         'cuentas': cuentas_sat if usar_sat else cuentas,
         'usar_sat': usar_sat,
+        'estados_manuales': estados_manuales_por_cuenta(tenant, cuentas_sat if usar_sat else cuentas, usar_sat),
         'grupos_sat': grupos_sat,
         'opciones_sat_modal': [{'codigo': g['codigo'].codigoagrupador, 'nombre': g['codigo'].nombre} for g in grupos_sat],
         'cuentas_sin_vinculo': cuentas_sin_vinculo,
@@ -484,6 +528,9 @@ def generar_manual(request):
 
 def generar_contenido_manual(cuentas, tenant):
     """Genera el manual con el proveedor configurado, sin exponerlo al usuario."""
+    cuentas = list(cuentas)
+    if len(cuentas) != 1:
+        raise ManualGenerationError('Selecciona una sola cuenta para generar un manual completo.')
     system_prompt, prompt = build_manual_prompts(cuentas, tenant)
     return generar_texto(system_prompt, prompt)
 

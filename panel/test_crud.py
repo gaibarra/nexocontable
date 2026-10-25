@@ -189,6 +189,21 @@ class CrudTests(TestCase):
         self.client.post(self.url('eliminar', 'donativo', obj.pk), self.payload_delete('donativo', obj))
         self.assertFalse(Donativo.objects.filter(pk=obj.pk).exists())
 
+    def test_checkout_fallido_externo_no_se_edita_ni_elimina(self):
+        from uuid import uuid4
+        externo = Donativo.objects.create(monto=100, checkout_clave=uuid4(), estado='error_checkout')
+        for accion in ['editar', 'eliminar']:
+            self.assertEqual(self.client.post(self.url(accion, 'donativo', externo.pk), {}).status_code, 403)
+        self.assertTrue(Donativo.objects.filter(pk=externo.pk).exists())
+
+    def test_totales_usen_neto_y_conserven_historicos(self):
+        Donativo.objects.create(monto=100, estado='parcial', monto_confirmado=70, monto_reembolsado=30)
+        Donativo.objects.create(monto=50, estado='aprobado')
+        Donativo.objects.create(monto=100, estado='reembolsado', monto_confirmado=0)
+        response = self.client.get(reverse('panel:donativos'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 120)
+
     def test_pago_externo_y_registros_operativos_no_se_mutan(self):
         externo = Donativo.objects.create(monto=100, preference_id='mp-test', estado='aprobado')
         evento = Evento.objects.create(categoria='test', accion='inmutable')

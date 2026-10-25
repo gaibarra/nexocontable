@@ -88,7 +88,7 @@ class ManualGenerationErrorTests(SimpleTestCase):
                 with patch('catalogo.views.build_manual_prompts', return_value=('system', 'user')), \
                      patch('catalogo.ia.OpenAI', side_effect=error):
                     with self.assertRaisesRegex(ManualGenerationError, expected):
-                        generar_contenido_manual([], SimpleNamespace(nombre='Demo'))
+                        generar_contenido_manual([SimpleNamespace(cuenta='101')], SimpleNamespace(nombre='Demo'))
 
     def test_successful_generation_is_preserved(self):
         response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='Manual'), finish_reason='stop')],
@@ -96,7 +96,7 @@ class ManualGenerationErrorTests(SimpleTestCase):
         with patch('catalogo.views.build_manual_prompts', return_value=('system', 'user')), \
              patch('catalogo.ia.OpenAI') as factory:
             factory.return_value.__enter__.return_value.chat.completions.create.return_value = response
-            self.assertEqual(generar_contenido_manual([], SimpleNamespace(nombre='Demo')), 'Manual')
+            self.assertEqual(generar_contenido_manual([SimpleNamespace(cuenta='101')], SimpleNamespace(nombre='Demo')), 'Manual')
 
     def test_generation_error_is_displayed_without_creating_manual(self):
         request = RequestFactory().post('/catalogo/generar-manual/', {'cuentas': ['1']})

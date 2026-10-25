@@ -91,7 +91,7 @@ class ProveedorIATests(SimpleTestCase):
         client = factory.return_value.__enter__.return_value
         client.chat.completions.create.return_value = respuesta('contenido privado', 'length')
         with self.assertLogs('catalogo.ia', level='WARNING') as logs:
-            with self.assertRaisesRegex(ManualGenerationError, 'Selecciona menos cuentas'):
+            with self.assertRaisesRegex(ManualGenerationError, 'No se guardó un documento parcial'):
                 generar_texto('Sistema privado', 'Cuentas privadas')
         self.assertIn('motivo=length', ' '.join(logs.output))
         self.assertNotIn('contenido privado', ' '.join(logs.output))
