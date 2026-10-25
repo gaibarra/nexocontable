@@ -27,8 +27,8 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for grupo in grupos_sat %}
-                <tr>
-                    <th scope="row" class="p-3 align-top font-normal">
+                <tr data-account-search-group>
+                    <th data-account-search-heading scope="row" class="p-3 align-top font-normal">
                         <span class="block font-mono font-medium">{{ grupo.codigo.codigoagrupador }}</span>
                         <span class="text-gray-600">{{ grupo.codigo.nombre }}</span>
                     </th>

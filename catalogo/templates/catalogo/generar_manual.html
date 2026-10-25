@@ -2,7 +2,12 @@
 {% load markdown_filters static %}
 {% block title %}Generar Manual — {{ request.tenant.nombre }}{% endblock %}
 
+{% block extra_head %}
+<style>[data-account-search-row][hidden],[data-account-search-group][hidden],[data-account-search-empty][hidden],[data-account-search-clear][hidden]{display:none!important}</style>
+<link rel="stylesheet" href="{% static 'css/manual-actions.css' %}">
+{% endblock %}
 {% block content %}
+<div class="manual-generation-page">
 <div class="mb-8">
     <h1 class="text-2xl font-bold">🤖 Generar Manual Contable</h1>
     <p class="text-gray-500">{{ request.tenant.nombre }} — {{ request.tenant.get_giro_display }}</p>
@@ -19,10 +24,18 @@
             {% if usar_sat %}<p class="text-sm text-gray-500 mb-4">Estás usando el catálogo oficial SAT. Puedes subir tu catálogo propio cuando lo necesites.</p>{% endif %}
 
             {% if cuentas %}
+            <div id="manual-account-selector">
+                <label for="manual-account-search" class="block text-sm font-medium text-gray-700 mb-2">Buscar cuenta</label>
+                <div class="flex items-center gap-2 mb-2">
+                    <input type="search" id="manual-account-search" autocomplete="off" placeholder="Código o nombre: 105, clientes, bancos…" aria-controls="account-search-results" aria-describedby="account-search-status" class="w-full min-w-0 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <button type="button" data-account-search-clear hidden class="shrink-0 px-3 py-3 text-sm border border-gray-300 rounded-lg text-brand-700 hover:bg-gray-50">Limpiar</button>
+                </div>
+                <p id="account-search-status" role="status" aria-live="polite" aria-atomic="true" class="text-xs text-gray-500 mb-4">Busca por código o nombre. Las cuentas seleccionadas se conservan al filtrar.</p>
+                <div id="account-search-results">
             {% if usar_sat %}
             <div class="max-h-96 overflow-y-auto space-y-2 mb-4">
                 {% for cuenta in cuentas %}
-                <label class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                <label data-account-search-row class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
                     <input type="checkbox" name="cuentas" value="{{ cuenta.id }}" class="mt-1 h-4 w-4 text-brand-600 rounded">
                     <span><span class="font-mono text-sm font-medium">{{ cuenta.cuenta }}</span>
                         <span class="text-sm text-gray-600 block">{{ cuenta.descripcion }}</span></span>
@@ -32,14 +45,23 @@
             {% else %}
                 {% include "catalogo/selector_catalogo_propio.html" %}
             {% endif %}
+                </div>
+                <p data-account-search-empty hidden class="text-sm text-gray-600 border border-dashed border-gray-300 rounded-lg p-5 mb-4">No se encontraron cuentas. Prueba otro código o nombre, o pulsa Limpiar.</p>
+            </div>
 
             <p class="text-xs text-slate-600 leading-relaxed mb-4">Al solicitar la generación, se enviarán el nombre, giro y régimen de la organización y las cuentas seleccionadas a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o al respaldo {{ privacidad.respaldo_ia }}{% endif %}, con posible procesamiento fuera de México. Usa descripciones genéricas y evita datos sensibles o de terceros sin autorización. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta cómo se tratan los datos en la IA</a>.</p>
-            <button type="submit"
-                id="generate-manual-button"
-                class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">
-                🤖 Generar con IA
-            </button>
-            <p class="text-xs text-gray-400 mt-2 text-center">Incluye materialidad fiscal 2026</p>
+            <aside class="manual-action-bar no-print" aria-label="Generación de manual">
+                <div class="manual-action-content">
+                    <div class="manual-action-info">
+                        <strong>Prepara tu próximo manual</strong>
+                        <p>Se enviarán la organización y las cuentas seleccionadas a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o su respaldo {{ privacidad.respaldo_ia }}{% endif %}. <a href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Privacidad de la IA</a></p>
+                    </div>
+                    <div class="manual-action-submit">
+                        <button type="submit" id="generate-manual-button" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">🤖 Generar con IA</button>
+                        <p>Incluye materialidad fiscal 2026</p>
+                    </div>
+                </div>
+            </aside>
 
             <div id="manual-progress-wrap" class="hidden mt-4">
                 <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
@@ -124,9 +146,12 @@
     </div>
 </div>
 {% if not usar_sat %}{% include "catalogo/modal_vincular_sat.html" %}{% endif %}
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{% static 'js/manual-account-search.js' %}" defer></script>
+<script src="{% static 'js/manual-actions.js' %}" defer></script>
 {% if not usar_sat %}<script src="{% static 'js/manual_vinculos.js' %}?v=2" defer></script>
 <script src="{% static 'js/manual_modal_vinculo.js' %}" defer></script>{% endif %}
 <script>

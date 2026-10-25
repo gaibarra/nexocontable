@@ -7,7 +7,8 @@
         <a href="/" class="public-brand" aria-label="NexoContable, inicio">
             <img src="{% static 'img/nexocontable-logo-light.svg' %}" alt="NexoContable" width="610" height="126" class="public-brand-logo">
         </a>
-        <div class="public-nav-actions flex items-center gap-2 sm:gap-4">
+        <div class="public-nav-actions flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+            <a href="mailto:proyectog40@gmail.com" class="text-sm text-white/80 hover:text-white">Contacto</a>
             <a href="{% url 'donar' %}" class="text-sm text-white/80 hover:text-white">💜 Donar</a>
             <a href="{% url 'login' %}" class="text-sm text-white/80 hover:text-white">Iniciar sesión</a>
             <a href="{% url 'registro' %}"
