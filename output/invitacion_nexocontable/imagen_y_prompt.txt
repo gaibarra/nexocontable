@@ -1,0 +1,5 @@
+Imagen: capacitacion_contable.png
+Método: herramienta integrada image_gen, mediante la habilidad imagegen.
+Uso: imagen ilustrativa generada con IA para la invitación en PDF.
+Prompt:
+Use case: ads-marketing. Asset type: wide editorial photograph for a printed invitation to the Mexican accounting community. Primary request: Mexican senior accountant mentoring two young adult accounting assistants at a bright contemporary office desk, reviewing financial documents and a laptop together, natural attentive expressions, professional everyday clothing, authentic collaborative learning. Scene: modern modest Mexican accounting office, daylight, papers with subtle abstract accounting tables, calculator, one laptop. Style: polished realistic editorial photography, human warm mood, navy blue and teal accents, natural skin texture, horizontal 3:2 framing with all three people clearly visible. Constraints: no readable text, no logos, no watermarks, no fabricated software interface, natural anatomy.
