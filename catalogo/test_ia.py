@@ -110,3 +110,24 @@ class ProveedorIATests(SimpleTestCase):
         client.chat.completions.create.side_effect = [respuesta('incompleto', 'length'), respuesta('Manual completo')]
         self.assertEqual(generar_texto('Sistema', 'Cuentas'), 'Manual completo')
         self.assertEqual(client.chat.completions.create.call_count, 2)
+
+
+class ContextoPersonalizacionTests(SimpleTestCase):
+    def test_misma_cuenta_recibe_el_contexto_de_cada_organizacion(self):
+        from cuentas.models import Tenant
+        from .prompts import build_manual_prompts
+        cuenta = SimpleNamespace(cuenta='101', descripcion='Caja',
+            codigoagrupador=SimpleNamespace(codigoagrupador='101', nombre='Caja'))
+        restaurante = Tenant(nombre='Restaurante de prueba', giro='restaurantes', regimen_fiscal='pm_general')
+        asociacion = Tenant(nombre='Asociación de prueba', giro='ong', regimen_fiscal='pm_sin_fines')
+        for org, ajena in [(restaurante, asociacion), (asociacion, restaurante)]:
+            with self.subTest(giro=org.giro):
+                sistema, solicitud = build_manual_prompts([cuenta], org)
+                self.assertIn(org.get_giro_display(), sistema)
+                self.assertIn(org.get_regimen_fiscal_display(), sistema)
+                self.assertIn(org.nombre, solicitud)
+                self.assertIn(org.get_giro_display(), solicitud)
+                self.assertIn(org.get_regimen_fiscal_display(), solicitud)
+                self.assertNotIn(ajena.nombre, solicitud)
+                self.assertIn('casos hipotéticos', solicitud)
+                self.assertIn('hechos no proporcionados', solicitud)

@@ -18,11 +18,12 @@
         {% if request.tenant %}
         {{ request.tenant.get_giro_display }} · {{ request.tenant.get_regimen_fiscal_display }}
         {% else %}
-        Selecciona una organización para comenzar
+        Selecciona una organización para preparar manuales personalizados para tu cliente
         {% endif %}
     </p>
 </div>
 
+{% if request.tenant %}<p class="text-sm text-gray-500 mb-6">Los nuevos manuales se adaptan al giro, régimen fiscal y cuenta seleccionada de {{ request.tenant.nombre }}. Revisa estos datos antes de generar.</p>{% endif %}
 {% include "catalogo/resumen_ia.html" %}
 
 {% if request.tenant %}

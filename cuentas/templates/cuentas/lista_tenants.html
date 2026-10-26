@@ -7,7 +7,7 @@
         <div>
             <p class="organizations-eyebrow">TU ESPACIO DE TRABAJO</p>
             <h1 id="organizations-title">Mis organizaciones</h1>
-            <p>Todo tu trabajo contable, en un solo lugar.</p>
+            <p>Cada organización, con manuales adaptados a su giro y régimen fiscal.</p>
         </div>
         {% if membresias %}
         <a href="{% url 'crear_tenant' %}" class="org-primary"><span aria-hidden="true">+</span> Nueva organización</a>
@@ -15,7 +15,7 @@
     </header>
 
     {% if membresias %}
-    <p class="organizations-hint">Selecciona la organización con la que quieres trabajar.</p>
+    <p class="organizations-hint">Selecciona la organización de tu cliente. Su giro y régimen fiscal guiarán la generación de sus manuales.</p>
     <div class="organizations-grid">
         {% for m in membresias %}
         <article class="organization-card {% if request.tenant.id == m.tenant.id %}is-active{% endif %}">
@@ -48,13 +48,13 @@
         </div>
         <p class="organizations-eyebrow">EMPIEZA AQUÍ</p>
         <h2>Tu primera organización,<br>el inicio de todo.</h2>
-        <p>Crea el espacio de tu empresa o despacho para organizar tus cuentas, manuales y equipo.</p>
+        <p>Registra tu organización o la de tu cliente para preparar manuales personalizados según su giro y régimen fiscal.</p>
         <a href="{% url 'crear_tenant' %}" class="org-primary">Crear organización <span aria-hidden="true">→</span></a>
         <span class="organizations-empty-note">Podrás agregar más organizaciones después.</span>
     </div>
     <div class="organizations-next" aria-label="Qué puedes hacer">
         <div><span aria-hidden="true">01</span><p><strong>Organiza tus cuentas</strong>Tu catálogo, siempre a mano.</p></div>
-        <div><span aria-hidden="true">02</span><p><strong>Crea manuales con IA</strong>Documenta tu trabajo contable.</p></div>
+        <div><span aria-hidden="true">02</span><p><strong>Crea manuales personalizados</strong>Adaptados al contexto de cada cliente.</p></div>
         <div><span aria-hidden="true">03</span><p><strong>Trabaja en equipo</strong>Un espacio para tus colegas.</p></div>
     </div>
     {% endif %}

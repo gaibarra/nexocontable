@@ -11,6 +11,7 @@
     <div>
         <h1 class="text-2xl font-bold">📋 Catálogo de Cuentas</h1>
         <p class="text-gray-500">{{ total }} cuentas en {{ request.tenant.nombre }}</p>
+        <p class="text-sm text-gray-500 mt-2">Cada cuenta puede tener un manual personalizado según el giro y régimen fiscal de esta organización.</p>
     </div>
     <div class="flex flex-wrap gap-3">
         <a href="{% url 'agregar_cuenta' %}"

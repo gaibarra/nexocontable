@@ -13,6 +13,7 @@
         <p class="text-sm text-gray-500 mt-2">{{ empresa.nombre }} · Elige cómo se presenta esta empresa en sus manuales.</p>
         <a href="{% url 'editar_tenant' empresa.pk %}" class="inline-flex items-center min-h-11 text-sm text-brand-600 underline mt-2">Editar nombre, RFC y datos generales de la empresa →</a>
         {% endif %}
+        <p class="text-sm text-gray-500 mt-2">El contenido de los nuevos manuales se personaliza según el giro y régimen fiscal de cada organización. Aquí configuras los logos y la presentación con los que los entregarás a tus clientes.</p>
     </header>
     <div class="brand-settings-grid">
         <form method="post" enctype="multipart/form-data" class="brand-settings-form">

@@ -101,13 +101,13 @@ a.gradient-bg { display: inline-flex; align-items: center; justify-content: cent
     .accounts-table .sat-search-wrap { min-width: 0; }
 }
 /* Usage reports remain outside the exported client document. */
-.ia-report, .ia-summary { border: 1px solid #dce5ef; border-radius: 20px; padding: 24px; margin-bottom: 24px; background: white; }
+.ia-report, .ia-summary { border: 1px solid #dce5ef; border-radius: 14px; padding: 14px 18px; margin-bottom: 14px; background: white; }
 .ia-report { border-color: #b6d9c8; scroll-margin-top: 100px; }
-.ia-report-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+.ia-report-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 0; }
 .ia-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: #21744e; margin-bottom: 6px; }
-.ia-report h2, .ia-summary h2 { font-size: 20px; line-height: 1.3; font-weight: 600; color: #122b45; }
-.ia-report-heading > div > p:last-child, .ia-summary-heading p { margin-top: 6px; font-size: 12px; color: #64748b; overflow-wrap: anywhere; }
-.ia-report-link { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 10px; background: #1a365d; color: white; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.ia-report h2, .ia-summary h2 { font-size: 15px; line-height: 1.3; font-weight: 600; color: #122b45; }
+.ia-report-heading > div > p:last-child, .ia-summary-heading p { margin-top: 4px; font-size: 11px; color: #64748b; overflow-wrap: anywhere; }
+.ia-report-link { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; padding: 8px 12px; border-radius: 9px; background: #1a365d; color: white; font-size: 12px; font-weight: 600; flex-shrink: 0; }
 .ia-consumption-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; }
 .ia-consumption-grid > div { padding: 16px; background: #f7fafc; border-radius: 12px; min-width: 0; }
 .ia-consumption-grid span { display: block; font-size: 12px; color: #64748b; line-height: 1.5; }
@@ -126,8 +126,8 @@ a.gradient-bg { display: inline-flex; align-items: center; justify-content: cent
 .ia-support { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #edf1f5; padding-top: 16px; margin-top: 16px; font-size: 11px; line-height: 1.7; color: #64748b; }
 .ia-support a { color: #6444a0; font-weight: 600; flex-shrink: 0; display: inline-flex; align-items: center; min-height: 44px; }
 @media (max-width: 767px) {
-    .ia-report, .ia-summary { padding: 20px; border-radius: 16px; }
-    .ia-report-heading { flex-direction: column; align-items: stretch; }
+    .ia-report, .ia-summary { padding: 12px 14px; border-radius: 12px; }
+    .ia-report-heading { flex-direction: column; align-items: stretch; gap: 10px; }
     .ia-consumption-grid { grid-template-columns: 1fr 1fr; }
     .ia-consumption-total { grid-column: 1 / -1; }
     .ia-consumption-grid > div { padding: 12px; }
@@ -201,3 +201,5 @@ a.gradient-bg { display: inline-flex; align-items: center; justify-content: cent
 @media screen and (min-width: 768px) and (max-height: 640px) {
     .sidebar-brand { padding: 14px 16px; }
 }
+
+.ia-report-heading>div:first-child{min-width:0}.ia-report-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;flex-wrap:wrap}.ia-report-total{font-size:12px;color:#42705a;background:#edf7f1;padding:6px 10px;border-radius:8px}.ia-report-total strong{font-weight:700;font-variant-numeric:tabular-nums}.ia-report-details{margin-top:6px}.ia-report-details>summary{font-size:11px;color:#547085;cursor:pointer;width:fit-content;min-height:28px;display:list-item;align-content:center;margin-left:14px}.ia-report-details[open]>summary{margin-bottom:10px}.ia-report-details .ia-consumption-grid>div{padding:10px 12px}.ia-report-details .ia-consumption-grid strong{font-size:18px;margin-top:2px}.ia-report-details .ia-explanation{font-size:11px;margin-top:10px;line-height:1.6}.ia-summary>summary::after{font-size:20px}.ia-summary-heading h2{font-size:14px}.ia-summary-heading p{font-size:11px}

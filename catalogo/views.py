@@ -514,7 +514,6 @@ def generar_manual(request):
 
     return render(request, 'catalogo/generar_manual.html', {
         'reporte_ia': reporte_uso(registro_ia),
-        'expandir_resumen_ia': bool(registro_ia),
         'resumen_ia': resumen_uso(request.user),
         'cuentas': cuentas_sat if usar_sat else cuentas,
         'usar_sat': usar_sat,

@@ -1,0 +1,17 @@
+<dialog id="manual-progress-dialog" class="manual-confirmation manual-progress-dialog" aria-labelledby="manual-progress-title" aria-describedby="manual-progress-description" aria-busy="true">
+    <div class="manual-confirmation-body">
+        <div class="manual-progress-orbit" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 12h7M8 16h7"/></svg></div>
+        <h2 id="manual-progress-title" tabindex="-1">Personalizando tu manual</h2>
+        <p id="manual-progress-account"></p>
+        <p id="manual-progress-description">Estamos preparando el contenido y los ejemplos según el giro, régimen fiscal y cuenta de tu organización. Espera en esta ventana hasta que termine.</p>
+        <div class="manual-progress-caption"><span id="manual-progress-label" role="status" aria-live="polite">Preparando generación…</span><strong id="manual-progress-percent">0%</strong></div>
+        <div id="manual-progress-track" class="manual-progress-track" role="progressbar" aria-label="Avance estimado de generación" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="manual-progress-bar"></div></div>
+        <p class="manual-progress-estimate">Avance estimado. La ventana se actualizará al terminar.</p>
+        <ol id="manual-progress-steps">
+            <li class="manual-step">Validando la cuenta seleccionada</li>
+            <li class="manual-step">Adaptando al contexto de la organización</li>
+            <li class="manual-step">Generando contenido y ejemplos con IA</li>
+            <li class="manual-step">Organizando el documento final</li>
+        </ol>
+    </div>
+</dialog>

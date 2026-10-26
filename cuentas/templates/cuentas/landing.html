@@ -1,7 +1,7 @@
 {% extends "base_public.html" %}
 {% load static %}
-{% block title %}NexoContable — Cuentas y manuales para tu despacho{% endblock %}
-{% block meta_description %}Organiza las cuentas de tus empresas y prepara manuales contables con apoyo de inteligencia artificial. Usa el catálogo SAT o carga el tuyo, revisa y exporta a Word. Acceso gratuito para contadores.{% endblock %}
+{% block title %}NexoContable — Manuales contables personalizados para tus clientes{% endblock %}
+{% block meta_description %}Manuales contables personalizados por organización, con referencias a NIF mexicanas y NIIF/IFRS aplicables. Revisa con criterio profesional y exporta a Word.{% endblock %}
 
 {% block content %}
 <section class="brand-hero relative overflow-hidden py-12 sm:py-20 lg:py-24 bg-slate-950">
@@ -13,13 +13,12 @@
                     Para contadores independientes y despachos
                 </p>
                 <h1 class="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-6 font-display">
-                    Tu experiencia contable.<br>
-                    <span class="hero-value">Más valor para cada empresa.</span>
+                    Manuales contables.<br>
+                    <span class="hero-value">Personalizados para tus clientes.</span>
                 </h1>
                 <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-2xl leading-relaxed">
-                    Convierte tu conocimiento en manuales y políticas claras para tus clientes.
-                    La inteligencia artificial prepara el borrador; tú aportas el criterio profesional.
-                    Organiza las cuentas de cada empresa y entrega documentos especializados desde un solo lugar.
+                    Genera manuales personalizados según el giro, régimen fiscal y cuenta de cada organización. Las Normas de Información Financiera (NIF) mexicanas y las Normas Internacionales de Información Financiera (NIIF/IFRS) aplicables aportan sustento al tratamiento contable, las políticas y los ejemplos.
+                    La IA prepara el borrador; tú revisas las referencias y lo ajustas a la operación real de tu cliente.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <a href="{% url 'registro' %}" class="inline-flex items-center justify-center px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition">Crear mi cuenta gratis →</a>
@@ -31,16 +30,16 @@
             <div class="mt-10 lg:mt-0 lg:col-span-5">
                 <div class="bg-white rounded-2xl overflow-hidden shadow-2xl border border-white/10" aria-label="Ejemplo de un manual contable">
                     <div class="px-5 sm:px-6 py-4 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                        <span class="text-sm font-semibold text-slate-700">Manuales de tu empresa</span>
+                        <span class="text-sm font-semibold text-slate-700">Un manual para cada organización</span>
                         <span class="text-xs text-slate-500">Ejemplo ilustrativo</span>
                     </div>
                     <div class="p-5 sm:p-7">
                         <span class="inline-block text-xs px-3 py-1 rounded-full bg-amber-50 text-amber-800 mb-4">Pendiente de aprobación</span>
                         <h2 class="text-2xl font-semibold text-slate-900 mb-2">Manual de bancos</h2>
-                        <p class="text-sm text-slate-500 mb-6">Cuenta 1100.01 · Bancos nacionales</p>
+                        <p class="text-sm text-slate-500 mb-6">Cuenta 1100.01 · Bancos nacionales · Ejemplo: restaurante</p>
                         <div class="space-y-5 text-sm text-slate-600 leading-relaxed">
-                            <div><h3 class="font-semibold text-slate-900 mb-1">Políticas contables</h3><p>Define los criterios para registrar y controlar los movimientos bancarios de la empresa.</p></div>
-                            <div><h3 class="font-semibold text-slate-900 mb-1">Procedimientos y responsables</h3><p>Documenta cómo realizar la conciliación bancaria y quién revisa las diferencias.</p></div>
+                            <div><h3 class="font-semibold text-slate-900 mb-1">Políticas y sustento normativo</h3><p>Relaciona las políticas y los ejemplos del restaurante con las NIF mexicanas y las NIIF/IFRS que correspondan.</p></div>
+                            <div><h3 class="font-semibold text-slate-900 mb-1">Procedimientos y responsables</h3><p>Revisa los supuestos del borrador y define los procedimientos y responsables de ese restaurante.</p></div>
                         </div>
                         <div class="mt-6 pt-5 border-t border-slate-100">
                             <p class="text-xs font-semibold text-slate-500 mb-3">DEL BORRADOR AL DOCUMENTO DE TRABAJO</p>
@@ -57,7 +56,7 @@
     <div class="max-w-7xl mx-auto px-5 sm:px-6">
         <div class="max-w-2xl mb-8 sm:mb-12">
             <h2 id="beneficios-title" class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Herramientas para tu trabajo contable de cada día</h2>
-            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">Desde elegir las cuentas hasta entregar un manual revisado. Cada empresa conserva su propio catálogo, documentos y equipo.</p>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">Desde elegir una cuenta hasta entregar un manual personalizado y revisado. El giro y régimen fiscal de cada organización orientan su contenido, ejemplos y referencias.</p>
         </div>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
@@ -68,7 +67,7 @@
             <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-2xl" aria-hidden="true">📋</span>
                 <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Empieza con el catálogo SAT</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">El catálogo SAT ya está disponible para seleccionar cuentas y generar manuales. Cargar el catálogo de tu empresa es opcional.</p>
+                <p class="text-slate-600 text-sm leading-relaxed">Empieza con una cuenta del catálogo SAT: el manual se personaliza con el giro y régimen fiscal de tu organización. Cargar su catálogo propio es opcional.</p>
             </article>
             <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-2xl" aria-hidden="true">📤</span>
@@ -77,8 +76,8 @@
             </article>
             <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-2xl" aria-hidden="true">📘</span>
-                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Prepara y revisa tus manuales</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">Selecciona las cuentas y genera un borrador con inteligencia artificial según el giro y régimen fiscal de la empresa. Revísalo, edítalo y apruébalo antes de utilizarlo.</p>
+                <h3 class="text-xl font-semibold text-slate-900 mt-4 mb-3">Manuales personalizados por organización</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">Selecciona una cuenta y genera un borrador adaptado al giro y régimen fiscal de tu cliente, con referencias a las NIF mexicanas y NIIF/IFRS aplicables. Revisa las políticas, los casos y los ejemplos antes de aprobarlo.</p>
             </article>
             <article class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-2xl" aria-hidden="true">📄</span>
@@ -99,9 +98,9 @@
         <h2 id="pasos-title" class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">Empieza en tres pasos</h2>
         <p class="text-slate-600 mb-8">No necesitas conocimientos de tecnología. Solo la información de la empresa con la que vas a trabajar.</p>
         <ol class="grid md:grid-cols-3 gap-6 sm:gap-8">
-            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">1</span><h3 class="text-xl font-semibold mb-2">Crea tu cuenta y registra una empresa</h3><p class="text-sm text-slate-600 leading-relaxed">Captura tus datos de acceso y los datos de la empresa o despacho, como su nombre, giro y régimen fiscal.</p></li>
-            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">2</span><h3 class="text-xl font-semibold mb-2">Elige las cuentas que necesitas</h3><p class="text-sm text-slate-600 leading-relaxed">Usa el catálogo SAT disponible o carga tu catálogo y confirma qué código SAT corresponde a cada cuenta que vas a utilizar.</p></li>
-            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">3</span><h3 class="text-xl font-semibold mb-2">Genera, revisa y comparte</h3><p class="text-sm text-slate-600 leading-relaxed">Prepara el borrador del manual, adapta las políticas a la operación real de la empresa y exporta el documento cuando esté revisado.</p></li>
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">1</span><h3 class="text-xl font-semibold mb-2">Crea tu cuenta y registra una empresa</h3><p class="text-sm text-slate-600 leading-relaxed">Registra la organización de tu cliente e indica su giro y régimen fiscal. Estos datos guían la personalización de sus manuales.</p></li>
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">2</span><h3 class="text-xl font-semibold mb-2">Elige la cuenta que necesitas</h3><p class="text-sm text-slate-600 leading-relaxed">Usa el catálogo SAT disponible o carga tu catálogo y confirma qué código SAT corresponde a cada cuenta que vas a utilizar.</p></li>
+            <li><span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 text-brand-600 font-bold mb-4">3</span><h3 class="text-xl font-semibold mb-2">Genera, revisa y comparte</h3><p class="text-sm text-slate-600 leading-relaxed">Genera un manual personalizado para esa cuenta y organización. Revisa los supuestos, ajusta las políticas a su operación real y exporta el documento aprobado.</p></li>
         </ol>
         <a href="{% url 'registro' %}" class="inline-flex items-center justify-center mt-8 px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">Crear mi cuenta gratis →</a>
     </div>
@@ -111,6 +110,8 @@
     <div class="max-w-3xl mx-auto px-5 sm:px-6">
         <h2 id="preguntas-title" class="text-3xl font-bold text-slate-900 mb-6">Antes de empezar</h2>
         <div class="divide-y divide-slate-200">
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Cómo se personaliza el manual para cada cliente?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">La IA utiliza el giro, el régimen fiscal y la cuenta seleccionada de la organización activa para contextualizar el contenido y los ejemplos. Una misma cuenta puede requerir un enfoque distinto en un restaurante o en una empresa de servicios. Los procesos internos que no hayas proporcionado deben revisarse y ajustarse con tu criterio profesional.</p></details>
+            <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Qué papel tienen las NIF mexicanas y las NIIF/IFRS?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">Aportan criterios para fundamentar el tratamiento contable y la presentación de información financiera útil y comparable. El manual incorpora referencias a las Normas de Información Financiera (NIF) mexicanas y a las Normas Internacionales de Información Financiera (NIIF/IFRS) que correspondan a la cuenta y organización. Revisa el marco aplicable, las referencias y los supuestos antes de aprobarlo.</p><p class="mt-3 text-xs text-slate-500">Consulta las fuentes oficiales: <a href="https://www.cinif.org.mx/" target="_blank" rel="noopener" class="underline">CINIF</a> y <a href="https://www.ifrs.org/about-us/who-we-are/" target="_blank" rel="noopener" class="underline">IFRS Foundation</a>.</p></details>
             <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Necesito subir mi catálogo de cuentas?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">No. Puedes generar manuales con las cuentas del catálogo SAT que ya está disponible. Si prefieres trabajar con las claves y descripciones de tu empresa, puedes cargar tu catálogo en Excel o CSV.</p></details>
             <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿Puedo trabajar con varias empresas?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">Sí. Registra cada empresa en “Mis organizaciones” y selecciona aquella con la que quieras trabajar. Cada una tiene su catálogo, manuales y equipo.</p></details>
             <details class="py-5"><summary class="cursor-pointer font-semibold text-slate-900 leading-relaxed">¿El manual está listo para usarse al generarlo?</summary><p class="mt-3 text-sm text-slate-600 leading-relaxed">Se genera un borrador para tu revisión. Comprueba que las políticas, procedimientos y referencias sean adecuados para la empresa, realiza los ajustes necesarios y aprueba el documento con tu criterio profesional.</p></details>
@@ -131,7 +132,7 @@
 
 <footer class="py-8 bg-slate-950 border-t border-white/10">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="text-center md:text-left"><p class="text-white font-semibold text-lg mb-1">NexoContable</p><p class="text-slate-400 text-sm">Tus cuentas, manuales y equipo en un solo lugar.</p></div>
+        <div class="text-center md:text-left"><p class="text-white font-semibold text-lg mb-1">NexoContable</p><p class="text-slate-400 text-sm">Manuales personalizados para cada organización que atiendes.</p></div>
         <div class="flex flex-wrap justify-center gap-5 text-sm text-slate-400">
             <a href="{% url 'registro' %}" class="hover:text-white">Crear cuenta</a>
             <a href="{% url 'login' %}" class="hover:text-white">Iniciar sesión</a>

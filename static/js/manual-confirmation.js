@@ -20,7 +20,7 @@
             return;
         }
         const previous = existing[input.value];
-        dialog.querySelector('#manual-confirmation-title').textContent = previous ? (previous.estado === 'aprobado' ? 'Manual ya aprobado' : 'Borrador existente') : 'Generar manual';
+        dialog.querySelector('#manual-confirmation-title').textContent = previous ? (previous.estado === 'aprobado' ? 'Manual ya aprobado' : 'Borrador existente') : 'Generar manual personalizado';
         dialog.querySelector('.manual-preview-scope').hidden = !!previous;
         dialog.querySelector('.manual-preview-privacy').hidden = !!previous;
         warning.hidden = !previous;
@@ -85,6 +85,5 @@
         submitting = false; approved = null; confirm.disabled = false;
         confirm.textContent = 'Generar manual';
         confirm.classList.remove('opacity-70', 'cursor-not-allowed');
-        document.getElementById('manual-progress-wrap')?.classList.add('hidden');
     });
 })();

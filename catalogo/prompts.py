@@ -187,7 +187,7 @@ def build_manual_prompts(cuentas: Iterable[CatalogoCuentas], tenant: Tenant) -> 
         )
     niif_referencia = "\n".join(cuentas_niif)
 
-    user_prompt = f"""En el contexto de una organización llamada \"{nombre_org}\",\ndel giro \"{giro}\" y régimen fiscal \"{regimen}\",\ngenera un Manual Contable objetivo, técnico y altamente profesional para las siguientes cuentas:
+    user_prompt = f"""En el contexto de una organización llamada \"{nombre_org}\",\ndel giro \"{giro}\" y régimen fiscal \"{regimen}\",\ngenera un manual contable personalizado para esta organización y la cuenta seleccionada:
 
 {cuentas_listado}
 
@@ -199,6 +199,12 @@ NIIF/IFRS sugeridas por cuenta, usa solo las que realmente apliquen:
 {REFERENCE_BLOCK}
 
 {PROFESSIONAL_STYLE_BLOCK}
+
+Personalización para esta organización:
+- Adapta el análisis, las políticas propuestas, la documentación soporte y los ejemplos al giro "{giro}" y al régimen fiscal "{regimen}" de "{nombre_org}".
+- Utiliza operaciones representativas de ese giro en los casos de materialidad y en los dos ejemplos contables. Explica su relación con la actividad de la organización.
+- Identifica expresamente los supuestos y los casos hipotéticos. Cuando falten datos sobre procesos internos, tamaño, contratos o responsables reales, plantea aspectos por validar con el cliente sin atribuirle hechos no proporcionados.
+- Mantén las referencias sujetas a las reglas de citación y a su aplicabilidad; la personalización requiere revisión profesional antes de aprobar el manual.
 
 El resultado debe ser homogéneo y bien estructurado, asegurando que TODAS las secciones estén presentes para cada cuenta. La sección de NIIF/IFRS debe limitarse a las normas sugeridas arriba o a equivalentes claramente justificables. Cuando no apliquen, debe indicarse explícitamente que no hay referencia internacional materialmente relevante. La sección de materialidad debe ser especialmente detallada y práctica, contextualizada para el giro \"{giro}\" en México."""
 

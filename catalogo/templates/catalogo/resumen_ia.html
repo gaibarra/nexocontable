@@ -1,4 +1,4 @@
-<details class="ia-summary no-print" {% if expandir_resumen_ia %}open{% endif %}>
+<details class="ia-summary no-print">
     <summary class="ia-summary-heading">
         <h2 id="ia-summary-title">Tu uso de IA en todas tus organizaciones</h2>
         <p>{% if resumen_ia.tokens != None %}{{ resumen_ia.tokens|floatformat:"0g" }} tokens registrados{% elif resumen_ia.registros %}Consumo pendiente de informar{% else %}0 tokens registrados{% endif %} · {{ resumen_ia.manuales|default:0 }} manual{{ resumen_ia.manuales|pluralize:"es" }} preparado{{ resumen_ia.manuales|pluralize:"s" }}</p>

@@ -4,12 +4,14 @@ Has sido invitado a colaborar en la organización {{ tenant.nombre }}.
 
 Tu rol asignado es: {{ rol_display }}
 
+Podrás colaborar en el catálogo y preparar manuales personalizados según el giro, régimen fiscal y cuentas de {{ tenant.nombre }}.
+
 {% if invitation_url %}
 Para activar tu acceso, establece una contraseña segura usando este enlace (vigente por 24 horas y de un solo uso):
 
 {{ invitation_url }}
 {% else %}
-Puedes acceder a la plataforma para ver los catálogos y generar manuales con inteligencia artificial en el siguiente enlace:
+Accede al espacio de la organización en el siguiente enlace:
 
 {{ site_url }}
 {% endif %}

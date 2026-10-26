@@ -1,7 +1,7 @@
 <dialog id="manual-confirmation" class="manual-confirmation" aria-labelledby="manual-confirmation-title" aria-describedby="manual-confirmation-description">
     <div class="manual-confirmation-body">
-    <div class="manual-confirmation-heading"><span aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 12h7M8 16h7"/></svg></span><div><p>Un manual · Una cuenta</p><h2 id="manual-confirmation-title">Generar manual</h2></div></div>
-    <p id="manual-confirmation-description">Revisa la cuenta y el contexto que usaremos antes de continuar.</p>
+    <div class="manual-confirmation-heading"><span aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 12h7M8 16h7"/></svg></span><div><p>Un manual · Una cuenta</p><h2 id="manual-confirmation-title">Generar manual personalizado</h2></div></div>
+    <p id="manual-confirmation-description">Revisa la cuenta, el giro y el régimen fiscal: estos datos guían la personalización del contenido y los ejemplos para tu cliente.</p>
     <div data-manual-existing class="manual-existing-warning" role="alert" hidden></div>
     <dl class="manual-account-preview">
         <div><dt>Cuenta seleccionada</dt><dd><strong data-preview-code></strong><span data-preview-name></span></dd></div>
@@ -10,7 +10,7 @@
         <div><dt>Giro</dt><dd>{{ request.tenant.get_giro_display }}</dd></div>
         <div><dt>Régimen fiscal</dt><dd>{{ request.tenant.get_regimen_fiscal_display }}</dd></div>
     </dl>
-    <div class="manual-preview-scope"><strong>Qué incluirá tu manual</strong><p>Tratamiento contable, normas aplicables, aspectos fiscales, materialidad y ejemplos con cargos y abonos. El contenido se centrará en esta cuenta para dar espacio a todas las secciones.</p></div>
+    <div class="manual-preview-scope"><strong>Personalizado para esta organización</strong><p>El giro y régimen fiscal orientan los casos y ejemplos de la cuenta. Las NIF mexicanas y NIIF/IFRS aplicables aportan el sustento contable. Revisa las referencias y los supuestos para ajustarlos a la operación real de tu cliente.</p></div>
     <p class="manual-preview-privacy">La generación usa IA y requiere revisión profesional. <a href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta el uso de tus datos.</a></p>
     </div>
     <div class="manual-confirmation-actions"><button type="button" data-manual-cancel>Volver a elegir</button><a data-manual-existing-link hidden>Ver manual</a><button type="button" data-manual-confirm class="gradient-bg">Generar manual</button></div>

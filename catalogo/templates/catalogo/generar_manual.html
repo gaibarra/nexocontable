@@ -4,12 +4,12 @@
 
 {% block extra_head %}
 <style>[data-account-search-row][hidden],[data-account-search-group][hidden],[data-account-search-empty][hidden],[data-account-search-clear][hidden]{display:none!important}</style>
-<link rel="stylesheet" href="{% static 'css/manual-actions.css' %}?v=manual-status-3">
+<link rel="stylesheet" href="{% static 'css/manual-actions.css' %}?v=personalizados-5">
 {% endblock %}
 {% block content %}
 <div class="manual-generation-page">
 <div class="mb-8">
-    <h1 class="text-2xl font-bold">🤖 Generar Manual Contable</h1>
+    <h1 class="text-2xl font-bold">🤖 Generar manual contable personalizado</h1>
     <p class="text-gray-500">{{ request.tenant.nombre }} — {{ request.tenant.get_giro_display }}</p>
 </div>
 
@@ -21,7 +21,7 @@
         <form method="post" id="manual-generation-form" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             {% csrf_token %}
             <h2 class="font-semibold text-gray-900 mb-4">Selecciona una cuenta</h2>
-            <p class="text-sm text-gray-500 mb-4">Un manual por cuenta, con espacio suficiente para desarrollar sus ejemplos y referencias. Al elegirla podrás revisar los datos antes de generar.</p>
+            <p class="text-sm text-gray-500 mb-4">Un manual por cuenta, personalizado al giro y régimen fiscal de {{ request.tenant.nombre }}. Las NIF mexicanas y NIIF/IFRS aplicables aportan sustento al tratamiento contable, los casos y los ejemplos. Revisa los datos de la cuenta antes de generar.</p>
             {% if usar_sat %}<p class="text-sm text-gray-500 mb-4">Estás usando el catálogo oficial SAT. Puedes subir tu catálogo propio cuando lo necesites.</p>{% endif %}
 
             {% if cuentas %}
@@ -51,21 +51,6 @@
             </div>
 
             <p class="text-xs text-slate-600 leading-relaxed mb-4">Al solicitar la generación, se enviarán el nombre, giro y régimen de la organización y la cuenta seleccionada a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o al respaldo {{ privacidad.respaldo_ia }}{% endif %}, con posible procesamiento fuera de México. Usa descripciones genéricas y evita datos sensibles o de terceros sin autorización. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta cómo se tratan los datos en la IA</a>.</p>
-            <div id="manual-progress-wrap" class="hidden mt-4">
-                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-                    <span id="manual-progress-label">Preparando generación...</span>
-                    <span id="manual-progress-percent">0%</span>
-                </div>
-                <div class="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-                    <div id="manual-progress-bar" class="h-full w-0 rounded-full bg-brand-600 transition-all duration-300"></div>
-                </div>
-                <ul id="manual-progress-steps" class="mt-3 space-y-1 text-xs text-gray-500">
-                    <li class="manual-step">1. Validando la cuenta seleccionada</li>
-                    <li class="manual-step">2. Preparando la información de la empresa</li>
-                    <li class="manual-step">3. Generando contenido con IA</li>
-                    <li class="manual-step">4. Organizando el documento final</li>
-                </ul>
-            </div>
             {% else %}
             <div class="text-center py-8">
                 <p class="text-gray-500 mb-3">No hay cuentas aún</p>
@@ -128,79 +113,22 @@
         {% else %}
         <div class="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
             <div class="text-5xl mb-3">📘</div>
-            <p class="text-gray-500">Aún no hay manuales. Selecciona una cuenta y genera su manual con IA.</p>
+            <p class="text-gray-500">Selecciona una cuenta para preparar el primer manual personalizado de esta organización.</p>
         </div>
         {% endif %}
     </div>
 </div>
 {{ estados_manuales|json_script:"manual-existing-status" }}
 {% include "catalogo/modal_generar_manual.html" %}
+{% include "catalogo/modal_progreso_manual.html" %}
 {% if not usar_sat %}{% include "catalogo/modal_vincular_sat.html" %}{% endif %}
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script src="{% static 'js/manual-account-search.js' %}" defer></script>
-<script src="{% static 'js/manual-confirmation.js' %}?v=manual-status-3" defer></script>
+<script src="{% static 'js/manual-confirmation.js' %}?v=personalizados-5" defer></script>
 {% if not usar_sat %}<script src="{% static 'js/manual_vinculos.js' %}?v=2" defer></script>
 <script src="{% static 'js/manual_modal_vinculo.js' %}" defer></script>{% endif %}
-<script>
-(() => {
-    const form = document.getElementById('manual-generation-form');
-    if (!form) return;
-
-    const button = document.querySelector('[data-manual-confirm]');
-    const wrap = document.getElementById('manual-progress-wrap');
-    const bar = document.getElementById('manual-progress-bar');
-    const percent = document.getElementById('manual-progress-percent');
-    const label = document.getElementById('manual-progress-label');
-    const steps = Array.from(document.querySelectorAll('.manual-step'));
-
-    let currentProgress = 0;
-    let intervalId = null;
-
-    const setProgress = (value, text) => {
-        currentProgress = Math.min(95, value);
-        bar.style.width = `${currentProgress}%`;
-        percent.textContent = `${Math.round(currentProgress)}%`;
-        if (text) label.textContent = text;
-    };
-
-    const markStep = (index) => {
-        steps.forEach((step, stepIndex) => {
-            step.classList.toggle('text-brand-700', stepIndex <= index);
-            step.classList.toggle('font-medium', stepIndex <= index);
-        });
-    };
-
-    form.addEventListener('submit', () => {
-        wrap.classList.remove('hidden');
-        button.disabled = true;
-        button.textContent = 'Generando manual...';
-        button.classList.add('opacity-70', 'cursor-not-allowed');
-
-        const stages = [
-            { progress: 12, label: 'Validando la cuenta seleccionada' },
-            { progress: 28, label: 'Preparando la información de la empresa' },
-            { progress: 52, label: 'Generando contenido con IA' },
-            { progress: 76, label: 'Organizando el documento final' },
-            { progress: 90, label: 'Preparando tu manual' },
-        ];
-
-        let stageIndex = 0;
-        setProgress(stages[0].progress, stages[0].label);
-        markStep(0);
-
-        intervalId = window.setInterval(() => {
-            if (stageIndex < stages.length - 1) {
-                stageIndex += 1;
-                setProgress(stages[stageIndex].progress, stages[stageIndex].label);
-                markStep(stageIndex);
-            } else {
-                window.clearInterval(intervalId);
-            }
-        }, 1400);
-    });
-})();
-</script>
+<script src="{% static 'js/manual-progress.js' %}?v=personalizados-5" defer></script>
 {% endblock %}
