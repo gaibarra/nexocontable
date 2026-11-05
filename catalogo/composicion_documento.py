@@ -12,7 +12,12 @@ def _normalizar(texto):
 
 
 def componer_manual(manual):
+    from .biblioteca import anexo
     html = BeautifulSoup(str(render_markdown(manual.contenido)), 'html.parser')
+    bloque_fuentes = html.new_tag('section', attrs={'class': 'document-fundamentos'})
+    for nodo in list(BeautifulSoup(str(render_markdown(anexo(manual))), 'html.parser').contents):
+        bloque_fuentes.append(nodo)
+    html.append(bloque_fuentes)
     titulo = manual.titulo
     automatico = bool(re.match(r'^Manual:\s*', titulo, re.I))
     primero = next((n for n in html.children if isinstance(n, Tag) and n.get_text(strip=True)), None)
@@ -25,6 +30,11 @@ def componer_manual(manual):
         titulo = re.sub(r'^Manual:\s*', 'Manual contable — ', titulo, flags=re.I)
 
     cuentas = list(manual.cuentas.all()) + list(manual.codigos_sat.all())
+    if automatico and cuentas:
+        from types import SimpleNamespace
+        from .perfil_contable import titulo_cuenta
+        c=cuentas[0]
+        titulo=titulo_cuenta(SimpleNamespace(cuenta=getattr(c,'cuenta',None) or c.codigoagrupador,descripcion=getattr(c,'descripcion',None) or getattr(c,'nombre','')))
     alcance = []
     descripciones = set()
     for cuenta in cuentas:
@@ -54,4 +64,10 @@ def componer_manual(manual):
     introduccion = _normalizar(html.get_text(' ', strip=True)[:2500])
     faltantes = [c for c in alcance if not c['descripcion'] or _normalizar(c['descripcion']) not in introduccion]
     ajustar_tablas(html)
+    for etiqueta in html.find_all('p'):
+        texto = etiqueta.get_text(' ', strip=True)
+        if len(texto) <= 180 and re.match(r'^(?:Asiento(?:\s+contable|\s+\d+)?|Cuenta\s+T)\b', texto, re.I):
+            etiqueta['class'] = list(etiqueta.get('class', [])) + ['document-entry-caption']
+    from .estilo_documento import estilizar
+    estilizar(html)
     return {'titulo': titulo, 'contenido_html': str(html), 'alcance': faltantes}

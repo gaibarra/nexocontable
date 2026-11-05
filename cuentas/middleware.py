@@ -1,5 +1,6 @@
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 from .models import Tenant, MembresiaTenant
 
 # Rutas que NO requieren tenant activo
@@ -8,6 +9,8 @@ EXEMPT_URLS = [
     '/panel/',
     '/registro/',
     '/aviso-de-privacidad/',
+    '/uso-y-seguridad/',
+    '/condiciones-de-uso/',
     '/login/',
     '/recuperar-contrasena/',
     '/restablecer/',
@@ -56,6 +59,9 @@ class TenantMiddleware:
             # Si no hay tenant y la ruta lo requiere, redirigir
             if not request.tenant and not self._is_exempt(request.path):
                 return redirect('lista_tenants')
+
+        if request.user_rol == 'solo_lectura' and request.path.startswith('/catalogo/') and request.method not in ('GET', 'HEAD', 'OPTIONS'):
+            raise PermissionDenied('Este acceso permite consultar documentos, no modificarlos.')
 
         response = self.get_response(request)
         return response

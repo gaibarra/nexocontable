@@ -120,6 +120,8 @@ def dashboard(request):
     if tenant:
         from catalogo.models import CatalogoCuentas, ManualContable
         context['total_cuentas'] = CatalogoCuentas.objects.filter(tenant=tenant).count()
+        from catalogo.sat import codigos_oficiales
+        context['cuentas_sat_disponibles'] = len(codigos_oficiales())
         context['total_manuales'] = ManualContable.objects.filter(tenant=tenant).count()
         context['manuales_pendientes'] = ManualContable.objects.filter(tenant=tenant, aprobado=False).count()
         context['manuales_recientes'] = ManualContable.objects.filter(tenant=tenant).select_related('creado_por').prefetch_related('cuentas', 'codigos_sat').order_by('-fecha_creacion')[:5]
@@ -422,3 +424,11 @@ def eliminar_miembro(request, tenant_pk, membresia_pk):
         messages.success(request, f'Se ha eliminado a {email} de la organización.')
 
     return redirect('equipo_tenant', pk=tenant.pk)
+
+
+def condiciones_uso(request):
+    return render(request, 'cuentas/condiciones_uso_2026_10_29.html')
+
+
+def uso_seguridad(request):
+    return render(request, 'cuentas/uso_seguridad.html')

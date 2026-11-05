@@ -14,7 +14,7 @@
         {progress: 28, text: 'Adaptando al contexto de la organización', step: 1},
         {progress: 52, text: 'Personalizando el contenido y los ejemplos', step: 2},
         {progress: 76, text: 'Organizando el documento final', step: 3},
-        {progress: 90, text: 'Esperando el documento completo…', step: 3},
+        {progress: 90, text: 'Verificando y ajustando el documento…', step: 3},
     ];
     const showStage = stage => {
         bar.style.width = `${stage.progress}%`;

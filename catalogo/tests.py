@@ -73,6 +73,10 @@ from catalogo.views import generar_contenido_manual, generar_manual, ManualGener
 
 @override_settings(AI_PROVIDER='openai', AI_FALLBACK_PROVIDER='', OPENAI_API_KEY='test-key')
 class ManualGenerationErrorTests(SimpleTestCase):
+    def setUp(self):
+        self.enterContext(patch("catalogo.biblioteca.activa", return_value=False))
+        self.enterContext(patch("panel.audit.registrar"))
+
     def test_api_limits_have_actionable_messages(self):
         cases = [
             ('credit_balance_exhausted', 'insufficient_quota', 'recargar el saldo'),
@@ -100,8 +104,8 @@ class ManualGenerationErrorTests(SimpleTestCase):
 
     def test_generation_error_is_displayed_without_creating_manual(self):
         request = RequestFactory().post('/catalogo/generar-manual/', {'cuentas': ['1']})
-        request.user = SimpleNamespace(is_authenticated=True)
-        request.tenant = SimpleNamespace(nombre='Demo')
+        request.user = SimpleNamespace(is_authenticated=True, pk=1)
+        request.tenant = SimpleNamespace(nombre='Demo', pk=1)
         request.session = {}
         request._messages = FallbackStorage(request)
         with patch('catalogo.views.asegurar_catalogo_sat'), \

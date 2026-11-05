@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from cuentas.models import Tenant
@@ -129,6 +129,8 @@ class ManualContable(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     aprobado = models.BooleanField(default=False)
     presentacion_snapshot = models.JSONField(default=dict, blank=True)
+    fundamentos_snapshot = models.JSONField(default=dict, blank=True)
+    fecha_referencia = models.DateField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Manual Contable'
@@ -142,7 +144,30 @@ class ManualContable(models.Model):
         if self.pk and self.cuentas.exclude(tenant=self.tenant).exists():
             raise ValidationError({'cuentas': 'Todas las cuentas del manual deben pertenecer al mismo tenant.'})
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
+        renovar = kwargs.pop('renovar_fundamentos', False)
+        if self.pk:
+            anterior = type(self).objects.filter(pk=self.pk).first()
+            if anterior and (anterior.fundamentos_snapshot != self.fundamentos_snapshot or anterior.fecha_referencia != self.fecha_referencia):
+                if not renovar or anterior.aprobado or self.aprobado:
+                    raise ValidationError('La instantánea de fundamentos es inmutable. Solo un borrador puede reformularse conservando la versión anterior.')
+                from .biblioteca import huella
+                RevisionFundamentos.objects.create(manual=self, autor=None, huella=huella(anterior), tipo='reformulacion', evidencia={
+                    'motivo':'Reformulación técnica del borrador con archivo íntegro de su versión anterior; no constituye aprobación profesional.',
+                    'contenido_anterior':anterior.contenido, 'titulo_anterior':anterior.titulo,
+                    'fundamentos_anteriores':anterior.fundamentos_snapshot,
+                    'fecha_referencia_anterior':str(anterior.fecha_referencia) if anterior.fecha_referencia else None,
+                })
+                if kwargs.get('update_fields') is not None:
+                    kwargs['update_fields'] = set(kwargs['update_fields']) | {'fundamentos_snapshot','fecha_referencia'}
+            if anterior and anterior.contenido != self.contenido:
+                self.aprobado = False
+                if kwargs.get('update_fields') is not None:
+                    kwargs['update_fields'] = set(kwargs['update_fields']) | {'aprobado'}
+                if anterior.aprobado:
+                    from .biblioteca import huella
+                    RevisionFundamentos.objects.create(manual=self, autor_id=None, huella=huella(anterior), tipo='invalidacion', evidencia={'motivo': 'El contenido cambió; la revisión anterior queda en el historial.', 'actor': 'sistema'})
         if self.aprobado and not self.presentacion_snapshot and self.tenant_id:
             from .presentacion import construir_presentacion
             self.presentacion_snapshot = construir_presentacion(self.tenant)
@@ -185,3 +210,7 @@ class CambioPresentacionManual(models.Model):
 
     class Meta:
         ordering = ['-fecha', '-pk']
+
+# Modelos separados para mantener legible el catálogo de cuentas.
+from .biblioteca_models import (FuenteNormativa, VersionFuente, CriterioRevisado,
+    ControlBiblioteca, AlertaFuente, RevisionFundamentos)  # noqa: E402,F401

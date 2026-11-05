@@ -18,5 +18,5 @@
 </nav>
 
 {% block content %}{% endblock %}
-<div class="public-privacy-footer border-t border-slate-200 bg-white py-5 px-5 text-center text-xs text-slate-500"><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}">Aviso de privacidad</a><span class="mx-2" aria-hidden="true">·</span><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}#arco">Derechos ARCO</a></div>
+<div class="public-privacy-footer border-t border-slate-200 bg-white py-5 px-5 text-center text-xs text-slate-500"><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}">Aviso de privacidad</a><span class="mx-2" aria-hidden="true">·</span><a class="underline hover:text-brand-700" href="{% url 'aviso_privacidad' %}#arco">Derechos ARCO</a><span aria-hidden="true"> · </span><a href="{% url 'uso_seguridad' %}">Uso y seguridad</a><span class="mx-2" aria-hidden="true">·</span><a class="underline" href="{% url 'condiciones_uso' %}">Condiciones de uso comercial</a></div>
 {% endblock %}

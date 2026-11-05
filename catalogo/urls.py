@@ -1,7 +1,8 @@
 from django.urls import path
-from . import views
+from . import views, biblioteca_views
 
 urlpatterns = [
+    path('manual/<int:pk>/fundamentos/', biblioteca_views.revisar, name='revisar_fundamentos'),
     # Catálogo de cuentas
     path('', views.catalogo_cuentas, name='catalogo_cuentas'),
     path('confirmar/<int:pk>/', views.confirmar_relacion, name='confirmar_relacion'),

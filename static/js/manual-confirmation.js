@@ -86,4 +86,18 @@
         confirm.textContent = 'Generar manual';
         confirm.classList.remove('opacity-70', 'cursor-not-allowed');
     });
+    const retryId = form.dataset.retryAccount;
+    if (retryId) {
+        const target = inputs().find(input => input.value === retryId && !input.disabled);
+        if (target) {
+            target.checked = true;
+            const search = document.getElementById('manual-account-search');
+            if (search) search.dispatchEvent(new Event('input', {bubbles: true}));
+        }
+        const retry = form.querySelector('[data-retry-manual]');
+        if (retry) {
+            retry.disabled = !target;
+            retry.addEventListener('click', () => { if (target && !target.disabled) target.click(); });
+        }
+    }
 })();

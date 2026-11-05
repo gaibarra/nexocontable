@@ -105,7 +105,12 @@ def _inline(parrafo, nodo, negrita=False, cursiva=False, codigo=False, sub=False
     if nodo.name == 'a' and urlparse(nodo.get('href', '')).scheme in ('https', 'http', 'mailto'):
         enlace = OxmlElement('w:hyperlink')
         enlace.set(qn('r:id'), parrafo.part.relate_to(nodo['href'], RT.HYPERLINK, is_external=True))
-        run = OxmlElement('w:r'); texto = OxmlElement('w:t'); texto.text = nodo.get_text(); run.append(texto); enlace.append(run)
+        run = OxmlElement('w:r'); props = OxmlElement('w:rPr')
+        color = OxmlElement('w:color'); color.set(qn('w:val'), '145B82'); props.append(color)
+        subrayado = OxmlElement('w:u'); subrayado.set(qn('w:val'), 'single'); props.append(subrayado)
+        if negrita or nodo.find(['strong','b']): props.append(OxmlElement('w:b'))
+        run.append(props)
+        texto = OxmlElement('w:t'); texto.text = nodo.get_text(); run.append(texto); enlace.append(run)
         parrafo._p.append(enlace)
         return
     for hijo in nodo.children:
@@ -166,21 +171,39 @@ def _tabla(doc, nodo):
         return
     tabla = doc.add_table(rows=len(filas), cols=columnas)
     tabla.style = 'Table Grid'
+    bordes=OxmlElement('w:tblBorders')
+    for lado in ('top','left','bottom','right','insideH','insideV'):
+        borde=OxmlElement('w:'+lado)
+        for clave,valor in [('val','single'),('sz','4'),('color','DCE5ED')]: borde.set(qn('w:'+clave),valor)
+        bordes.append(borde)
+    tabla._tbl.tblPr.append(bordes)
     encabezados = [c.get_text(' ', strip=True) for c in filas[0].find_all(['td', 'th'], recursive=False)]
     anchos = anchos_normas(encabezados)
-    if anchos and columnas == len(anchos):
+    es_asiento = [t.lower() for t in encabezados] == ['cuenta','debe','haber']
+    distribucion = anchos or ([60,20,20] if es_asiento else None)
+    if distribucion and columnas == len(distribucion):
         tabla.autofit = False
-        for columna, porcentaje in zip(tabla.columns, anchos):
+        for columna, porcentaje in zip(tabla.columns, distribucion):
             columna.width = Mm(ANCHO_DOCUMENTO_MM * porcentaje / 100)
         for fila in tabla.rows:
-            for celda, porcentaje in zip(fila.cells, anchos):
+            for celda, porcentaje in zip(fila.cells, distribucion):
                 celda.width = Mm(ANCHO_DOCUMENTO_MM * porcentaje / 100)
     for y, x, alto, ancho, contenido in posiciones:
         celda = tabla.cell(y, x)
         if ancho > 1 or alto > 1:
             celda = celda.merge(tabla.cell(y + alto - 1, x + ancho - 1))
         celda.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
-        _inline(celda.paragraphs[0], contenido, negrita=contenido.name == 'th')
+        total=bool(re.fullmatch(r'total(?:es)?',filas[y].find(['td','th']).get_text(strip=True),re.I))
+        _inline(celda.paragraphs[0], contenido, negrita=contenido.name == 'th' or total)
+        fondo='18334F' if contenido.name=='th' else 'EAF4F2' if total else 'F8FAFC' if y%2==0 else 'FFFFFF'
+        sombra=OxmlElement('w:shd');sombra.set(qn('w:fill'),fondo);celda._tc.get_or_add_tcPr().append(sombra)
+        for parrafo in celda.paragraphs:
+            if es_asiento and x>0: parrafo.alignment=WD_ALIGN_PARAGRAPH.RIGHT
+            parrafo.paragraph_format.space_after=Pt(4)
+            parrafo.paragraph_format.line_spacing=1.15
+            for run in parrafo.runs:
+                run.font.size=Pt(9)
+                run.font.color.rgb=RGBColor.from_string('FFFFFF' if contenido.name=='th' else '233D55')
         if anchos:
             margenes = OxmlElement('w:tcMar')
             for lado in ('left', 'right'):
@@ -193,7 +216,16 @@ def _tabla(doc, nodo):
                 celda._tc.get_or_add_tcPr().append(OxmlElement('w:noWrap'))
     if filas[0].find('th'):
         repeat = OxmlElement('w:tblHeader'); tabla.rows[0]._tr.get_or_add_trPr().append(repeat)
-    doc.add_paragraph()
+    if len(filas) <= 10 and len(nodo.get_text()) <= 2500:
+        for indice, fila in enumerate(tabla.rows):
+            fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+            for celda in fila.cells:
+                for parrafo in celda.paragraphs:
+                    parrafo.paragraph_format.keep_with_next = indice < len(filas) - 1
+    separador = doc.add_paragraph()
+    separador.paragraph_format.space_after = Pt(4)
+    separador.paragraph_format.line_spacing = Pt(1)
+    separador.add_run().font.size = Pt(1)
 
 
 def _contenido(doc, nodo):
@@ -205,6 +237,7 @@ def _contenido(doc, nodo):
         nombre = hijo.name
         if nombre in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             p = doc.add_heading(level=int(nombre[1])); _inline(p, hijo)
+            p.paragraph_format.keep_with_next = True
         elif nombre in ('ol', 'ul'):
             _lista(doc, hijo)
         elif nombre == 'table':
@@ -215,6 +248,15 @@ def _contenido(doc, nodo):
             _contenido(doc, hijo)
         else:
             p = doc.add_paragraph(style='Quote' if nombre == 'blockquote' else None); _inline(p, hijo)
+            if 'document-citation' in hijo.get('class', []):
+                p.paragraph_format.left_indent=Mm(3)
+                p.paragraph_format.space_after=Pt(7)
+                for run in p.runs:
+                    run.font.size=Pt(8)
+                    run.font.color.rgb=RGBColor.from_string('64748B')
+            siguiente = hijo.find_next_sibling()
+            if (siguiente is not None and siguiente.name == 'table') or 'document-entry-caption' in hijo.get('class', []):
+                p.paragraph_format.keep_with_next = True
 
 
 def generar_docx(manual):
@@ -226,14 +268,17 @@ def generar_docx(manual):
     section.left_margin = section.right_margin = Mm(12)
     section.top_margin, section.bottom_margin = Mm(_margen_superior(datos)), Mm(18)
     section.header_distance, section.footer_distance = Mm(8), Mm(10)
-    normal = doc.styles['Normal']; normal.font.name = 'Calibri'; normal.font.size = Pt(10)
-    normal.paragraph_format.space_after = Pt(5)
+    normal = doc.styles['Normal']; normal.font.name = 'Calibri'; normal.font.size = Pt(10.5)
+    normal.paragraph_format.space_after = Pt(7)
+    normal.paragraph_format.line_spacing = 1.23
+    normal.font.color.rgb=RGBColor.from_string('334155')
     doc.styles['Title'].font.size = Pt(18)
+    doc.styles['Title'].font.bold = True
     doc.styles['Title'].paragraph_format.line_spacing = 1.05
     for nombre, tamano in [('Heading 1', 14), ('Heading 2', 12), ('Heading 3', 11)]:
         estilo = doc.styles[nombre]
         estilo.font.size = Pt(tamano)
-        estilo.paragraph_format.space_before = Pt(8)
+        estilo.paragraph_format.space_before = Pt(12)
         estilo.paragraph_format.space_after = Pt(4)
     rgb = [int(datos['color'][i:i + 2], 16) / 255 for i in (1, 3, 5)]
     luminancia = sum(p * (v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4) for p, v in zip([0.2126, 0.7152, 0.0722], rgb))
@@ -246,6 +291,9 @@ def generar_docx(manual):
     empresa_visible = any(b['nombre'] == datos['empresa_nombre'] for b in datos['bloques'])
     if not empresa_visible:
         doc.add_paragraph('Empresa: ' + datos['empresa_nombre'])
+    etiqueta=doc.add_paragraph('MANUAL CONTABLE · POLÍTICAS Y PROCEDIMIENTOS')
+    etiqueta.paragraph_format.space_after=Pt(5)
+    r=etiqueta.runs[0];r.bold=True;r.font.size=Pt(7);r.font.color.rgb=RGBColor.from_string('167B79')
     titulo = doc.add_heading(composicion['titulo'], 0)
     titulo.paragraph_format.space_before = Pt(0)
     titulo.paragraph_format.space_after = Pt(5)
@@ -258,6 +306,14 @@ def generar_docx(manual):
         alcance = doc.add_paragraph(' · '.join(f"{c['clave']} — {c['descripcion']}" for c in composicion['alcance']))
         alcance.paragraph_format.space_after = Pt(6)
         for run in alcance.runs:
+            run.font.size = Pt(9)
+    if manual.aprobado:
+        origen = doc.add_paragraph('Documento preparado con apoyo de inteligencia artificial.')
+        for run in origen.runs:
+            run.font.size = Pt(8)
+    if not manual.aprobado:
+        nota = doc.add_paragraph('Borrador preparado con apoyo de IA. Requiere revisión contable, fiscal y de referencias antes de entregarse a clientes.')
+        for run in nota.runs:
             run.font.size = Pt(9)
     _contenido(doc, BeautifulSoup(composicion['contenido_html'], 'html.parser'))
     pie = section.footer.paragraphs[0]; pie.alignment = WD_ALIGN_PARAGRAPH.RIGHT

@@ -127,3 +127,68 @@
     .document-table-scroll { overflow: visible; }
     .document-paper .prose .document-standards-table { min-width: 0; }
 }
+
+.document-draft-note{font-size:11px;color:#805719;border-left:3px solid #d6aa4c;padding:8px 12px;margin:12px 0 18px;background:#fffaf0}@media print{.document-draft-note{font-size:8pt;break-inside:avoid}}
+
+@media print{.document-paper .prose p:has(+table){break-after:avoid;page-break-after:avoid}}
+
+.document-paper{min-width:0}.document-paper .prose{overflow-wrap:anywhere;min-width:0}.document-paper .prose a{overflow-wrap:anywhere}@media(max-width:639px){.document-paper .prose th,.document-paper .prose td{padding:8px 6px;font-size:12px}}
+
+@media print{.document-paper .prose .document-entry-caption{break-after:avoid;page-break-after:avoid}}
+
+@media print { .document-fundamentos { break-inside: avoid; page-break-inside: avoid; } }
+
+/* Edición profesional: jerarquía editorial compartida con impresión. */
+.document-professional{border-radius:12px;border-color:#dbe3ec;box-shadow:0 12px 42px #102b4510;padding:38px 40px;color:#334155}
+.document-eyebrow{font:700 10px/1.4 'Inter',Arial,sans-serif;letter-spacing:.14em;color:#167b79;margin:24px 0 8px}
+.document-professional .document-title{font:700 29px/1.2 'Outfit',Arial,sans-serif;letter-spacing:-.035em;color:#122b45;margin:0 0 12px}
+.document-meta{display:flex;gap:10px;align-items:center;font-size:11px;color:#64748b;margin:0 0 20px;padding-bottom:18px;border-bottom:1px solid #e5ebf1}
+.document-professional .prose{font:400 15px/1.75 'Inter',Arial,sans-serif;color:#40516a;max-width:none}
+.document-professional .prose p{margin:0 0 16px}
+.document-professional .prose strong{font-weight:700;color:#152e49}
+.document-professional .prose h2{font:700 19px/1.35 'Outfit',Arial,sans-serif;color:#142e49;letter-spacing:-.02em;margin:32px 0 15px;padding:12px 0 10px;border-top:1px solid #dde6ef;border-bottom:0}
+.document-professional .prose h3{font:650 16px/1.4 'Inter',Arial,sans-serif;color:#176866;margin:23px 0 11px}
+.document-professional .prose ul,.document-professional .prose ol{padding-left:24px;margin:12px 0 20px}
+.document-professional .prose li{padding-left:4px;margin:7px 0}
+.document-professional .prose li::marker{font-weight:700;color:#167b79}
+.document-professional .prose .document-citation{font-size:11px;line-height:1.55;color:#64748b;border-left:2px solid #bfd6e2;padding:8px 12px;background:#f8fafc;margin:14px 0 20px}
+.document-professional .prose .document-law-link{color:#145b82;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#8baebe;font-weight:600}
+.document-professional .prose .document-law-link:hover{color:#0b4546;text-decoration-color:currentColor}
+.document-professional .prose .document-laws{background:#f2f7fa;border:1px solid #d8e5ed;border-radius:9px;padding:17px 20px;margin:18px 0 24px;break-inside:avoid}
+.document-professional .prose .document-laws h3{margin:0 0 10px;font-size:13px;letter-spacing:.02em;color:#173c58}
+.document-professional .prose .document-laws ul{list-style:none;padding:0;margin:0}
+.document-professional .prose .document-laws li{padding:0;margin:8px 0;font-size:12px}
+.document-professional .prose .document-laws p{font-size:10px;color:#61758b;margin:12px 0 0;line-height:1.5}
+.document-professional .prose table{width:100%;font-size:13px;border:1px solid #dce5ed;border-collapse:collapse;margin:15px 0 22px}
+.document-professional .prose th{background:#18334f;color:#fff;font-weight:650;letter-spacing:.03em;font-size:11px;padding:11px 12px;border:1px solid #294762}
+.document-professional .prose td{border:1px solid #e1e8ef;padding:10px 12px;vertical-align:top}
+.document-professional .prose tbody tr:nth-child(even){background:#f8fafc}
+.document-professional .prose .document-total-row{background:#eaf4f2!important;color:#153e3c;border-top:2px solid #8ab8b1}
+.document-professional .prose .document-fundamentos{font-size:11px;line-height:1.65;color:#607187}
+.document-professional .document-draft-note{font-size:11px;line-height:1.6;background:#fcf9f2;border-left:3px solid #b59155;color:#72592e;padding:10px 14px;margin:16px 0 22px}
+@media(max-width:639px){.document-professional{padding:22px 18px}.document-professional .document-title{font-size:24px}.document-professional .prose{font-size:14px;line-height:1.7}.document-professional .prose h2{font-size:18px;margin-top:27px}.document-professional .prose th,.document-professional .prose td{padding:8px 6px;font-size:11px}.document-eyebrow{font-size:9px;letter-spacing:.1em}}
+@media print{
+ .document-professional{padding:0;border:0;box-shadow:none;border-radius:0}
+ .document-professional .document-title{font-size:19pt;line-height:1.17}
+ .document-eyebrow{font-size:7pt;margin:4mm 0 2mm}
+ .document-meta{display:block;font-size:8pt;padding-bottom:3mm;margin-bottom:3mm}
+ .document-professional .prose{font-family:Arial,sans-serif;font-size:10pt;line-height:1.45}
+ .document-professional .prose p{margin-bottom:3mm}
+ .document-professional .prose h2{font-family:Arial,sans-serif;font-size:12pt;line-height:1.3;margin:5mm 0 2.5mm;padding:2.5mm 0 1.5mm;break-after:avoid}
+ .document-professional .prose h3{font-size:10.5pt;margin:4mm 0 2mm;break-after:avoid}
+ .document-professional .prose li{margin:1.5mm 0}
+ .document-professional .prose table{font-size:9pt;margin:3mm 0 4mm}
+ .document-professional .prose th,.document-professional .prose td{padding:2mm;font-size:9pt}
+ .document-professional .prose .document-citation{font-size:7.5pt;padding:2mm 3mm;line-height:1.4;margin:2.5mm 0 3mm}
+ .document-professional .prose .document-fundamentos{font-size:8pt;line-height:1.4;break-inside:auto}
+ .document-professional .prose .document-laws{padding:3mm 4mm;background:#f3f7fa}
+ .document-professional .prose .document-laws h3{font-size:9pt}
+ .document-professional .prose .document-laws li{font-size:8pt;margin:1.5mm 0}
+ .document-professional .prose .document-laws p{font-size:7pt}
+ .document-professional .document-draft-note{font-size:8pt;margin:3mm 0 4mm}
+}
+
+.document-professional .prose th strong{color:inherit}
+
+.document-professional .prose .document-entry-table :is(th,td):not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+@media print{.document-professional .prose th{background:#e8eff5;color:#17324d;border-color:#cddae5}.document-professional .prose th strong{color:inherit}}

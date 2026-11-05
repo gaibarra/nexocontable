@@ -1,7 +1,13 @@
 from django.urls import path
-from . import views, crud
+from . import views, crud, biblioteca
 app_name = 'panel'
 urlpatterns = [
+    path('fuentes/', biblioteca.inicio, name='biblioteca'),
+    path('fuentes/activar/', biblioteca.activar, name='biblioteca_activar'),
+    path('fuentes/alertas/<int:pk>/', biblioteca.resolver_alerta, name='fuente_alerta'),
+    path('fuentes/<str:tipo>/nuevo/', biblioteca.formulario, name='fuente_nueva'),
+    path('fuentes/<str:tipo>/<int:pk>/editar/', biblioteca.formulario, name='fuente_editar'),
+    path('fuentes/<str:tipo>/<int:pk>/estado/', biblioteca.estado, name='fuente_estado'),
     path('registros/<str:tipo>/nuevo/', crud.formulario, name='registro_nuevo'),
     path('registros/<str:tipo>/<int:pk>/', crud.ver, name='registro_ver'),
     path('registros/<str:tipo>/<int:pk>/editar/', crud.formulario, name='registro_editar'),

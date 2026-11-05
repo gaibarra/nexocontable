@@ -16,8 +16,30 @@ def anchos_normas(encabezados):
     return [13, 29, 58] if es_norma and segundo in ('titulo', 'nombre', 'denominacion') else None
 
 
+def corregir_rotulo_asiento(tabla):
+    """Distingue un asiento multicuenta de un mayor individual sin tocar importes."""
+    cuentas = set()
+    for fila in tabla.find_all('tr')[1:]:
+        celdas = fila.find_all(['td', 'th'], recursive=False)
+        if not celdas:
+            continue
+        clave = _clave(celdas[0].get_text(' ', strip=True))
+        for nombre in ('inventario', 'iva', 'banco', 'proveedor', 'cliente', 'costo', 'gasto', 'perdida'):
+            if clave.startswith(nombre):
+                cuentas.add(nombre)
+    rotulo = tabla.find_previous(['p', 'h2', 'h3', 'h4', 'h5'])
+    if len(cuentas) < 2 or rotulo is None or not re.match(r'^Cuenta\s+T\b', rotulo.get_text(' ', strip=True), re.I):
+        return
+    for nodo in list(rotulo.find_all(string=True)):
+        nuevo = re.sub(r'Cuenta\s+T\b', 'Asiento contable', str(nodo), count=1, flags=re.I)
+        if nuevo != str(nodo):
+            nodo.replace_with(nuevo)
+            break
+
+
 def ajustar_tablas(html):
     for tabla in html.find_all('table'):
+        corregir_rotulo_asiento(tabla)
         fila = tabla.find('tr')
         if fila is None:
             continue

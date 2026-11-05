@@ -27,12 +27,13 @@
 {% include "catalogo/resumen_ia.html" %}
 
 {% if request.tenant %}
+{% if not total_cuentas %}<p class="mb-5 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">Aún no cargaste cuentas propias. Puedes generar borradores con las {{ cuentas_sat_disponibles }} cuentas de referencia del catálogo SAT, sin importar un archivo.</p>{% endif %}
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-500 uppercase tracking-wider">Cuentas</p>
+                <p class="text-sm text-gray-500 uppercase tracking-wider">Cuentas propias</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1">{{ total_cuentas }}</p>
             </div>
             <div class="text-4xl">📋</div>

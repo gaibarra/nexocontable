@@ -5,6 +5,7 @@ import unicodedata
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
+from functools import lru_cache
 from django.db import transaction
 from .models import CodigoAgrupador
 
@@ -72,3 +73,21 @@ def sugerir_relacion(descripcion, codigos):
     if not candidatos or (len(candidatos) > 1 and candidatos[0][0] - candidatos[1][0] < 0.08):
         return None, None
     return candidatos[0][1], round(candidatos[0][0] * 100)
+
+
+@lru_cache(maxsize=1)
+def codigos_oficiales():
+    return frozenset(fila['codigoagrupador'] for fila in json.loads(ARCHIVO_SAT.read_text(encoding='utf-8'))['cuentas'])
+
+
+def codigo_sat_canonico(codigo):
+    codigo = str(codigo)
+    if codigo in codigos_oficiales():
+        return codigo
+    heredado = re.fullmatch(r'(\d{3})\.0+', codigo)
+    return heredado.group(1) if heredado and heredado.group(1) in codigos_oficiales() else codigo
+
+
+def ids_sat_equivalentes(codigo):
+    clave = codigo_sat_canonico(codigo.codigoagrupador)
+    return [pk for pk, valor in CodigoAgrupador.objects.values_list('pk', 'codigoagrupador') if codigo_sat_canonico(valor) == clave]

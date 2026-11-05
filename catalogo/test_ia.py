@@ -28,6 +28,15 @@ class ProveedorIATests(SimpleTestCase):
         self.assertEqual(client.chat.completions.create.call_args.kwargs['extra_body'],
                          {'thinking': {'type': 'disabled'}})
 
+    @patch('catalogo.ia.OpenAI')
+    def test_modo_json_solicita_formato_al_proveedor(self, factory):
+        factory.return_value.__enter__.return_value.chat.completions.create.return_value = respuesta('{}')
+        generar_texto('Produce JSON', 'Esquema JSON', formato_json=True, presupuesto_segundos=20)
+        opciones=factory.return_value.__enter__.return_value.chat.completions.create.call_args.kwargs
+        self.assertEqual(opciones['response_format'], {'type':'json_object'})
+        self.assertEqual(opciones['temperature'], 0.2)
+        self.assertLessEqual(factory.call_args.kwargs['timeout'],20)
+
     @override_settings(AI_PROVIDER='openai', AI_FALLBACK_PROVIDER='deepseek', OPENAI_API_KEY='openai-test')
     @patch('catalogo.ia.OpenAI')
     def test_fallback_on_primary_failure(self, factory):

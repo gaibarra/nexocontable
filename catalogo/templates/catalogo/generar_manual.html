@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 <style>[data-account-search-row][hidden],[data-account-search-group][hidden],[data-account-search-empty][hidden],[data-account-search-clear][hidden]{display:none!important}</style>
-<link rel="stylesheet" href="{% static 'css/manual-actions.css' %}?v=personalizados-5">
+<link rel="stylesheet" href="{% static 'css/manual-actions.css' %}?v=recuperacion-2">
 {% endblock %}
 {% block content %}
 <div class="manual-generation-page">
@@ -18,11 +18,18 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
     <!-- Columna izquierda: Selección y generación -->
     <div class="lg:col-span-3 min-w-0">
-        <form method="post" id="manual-generation-form" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        {% if request.user_rol != 'solo_lectura' %}<form method="post" id="manual-generation-form" data-retry-account="{{ incidencia_generacion.cuenta }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             {% csrf_token %}
+            {% if incidencia_generacion %}<div class="mb-5 p-4 rounded-xl border border-amber-300 bg-amber-50 text-sm text-slate-800" role="status" aria-live="polite">
+                <h2 class="font-semibold mb-2">No pudimos completar este manual</h2>
+                <p class="mb-2">{{ incidencia_generacion.nombre }}. El servicio no pudo terminar el documento en esta solicitud. Tus manuales existentes siguen disponibles.</p>
+                <p class="mb-3">Conservamos tu selección. Puedes volver a generar; el incidente quedó registrado con la referencia <strong>{{ incidencia_generacion.referencia }}</strong>.</p>
+                <button type="button" data-retry-manual class="gradient-bg text-white px-4 py-2 rounded-lg">Volver a generar esta cuenta</button>
+            </div>{% endif %}
+            <p class="text-xs text-amber-800 mb-4">La IA genera un borrador: verifica normas, fuentes y efectos fiscales antes de entregarlo a un cliente. <a class="underline" href="{% url 'uso_seguridad' %}">Uso, límites y datos enviados a IA</a>.</p>
             <h2 class="font-semibold text-gray-900 mb-4">Selecciona una cuenta</h2>
             <p class="text-sm text-gray-500 mb-4">Un manual por cuenta, personalizado al giro y régimen fiscal de {{ request.tenant.nombre }}. Las NIF mexicanas y NIIF/IFRS aplicables aportan sustento al tratamiento contable, los casos y los ejemplos. Revisa los datos de la cuenta antes de generar.</p>
-            {% if usar_sat %}<p class="text-sm text-gray-500 mb-4">Estás usando el catálogo oficial SAT. Puedes subir tu catálogo propio cuando lo necesites.</p>{% endif %}
+            {% if usar_sat %}<p class="text-sm text-gray-500 mb-4">Estás usando el catálogo oficial SAT. No necesitas cargar cuentas propias para generar un borrador.</p><details class="text-xs text-gray-500 mb-4"><summary class="cursor-pointer">¿Por qué había claves como 101 y 101.0?</summary><p class="mt-2">101 es un agrupador y 101.01 una subcuenta distinta. 101.0 es una variante histórica de 101, no otra clave oficial: se conserva en documentos previos, pero no se ofrece para nuevas selecciones.</p></details>{% endif %}
 
             {% if cuentas %}
             <div id="manual-account-selector">
@@ -50,14 +57,14 @@
                 <p data-account-search-empty hidden class="text-sm text-gray-600 border border-dashed border-gray-300 rounded-lg p-5 mb-4">No se encontraron cuentas. Prueba otro código o nombre, o pulsa Limpiar.</p>
             </div>
 
-            <p class="text-xs text-slate-600 leading-relaxed mb-4">Al solicitar la generación, se enviarán el nombre, giro y régimen de la organización y la cuenta seleccionada a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o al respaldo {{ privacidad.respaldo_ia }}{% endif %}, con posible procesamiento fuera de México. Usa descripciones genéricas y evita datos sensibles o de terceros sin autorización. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta cómo se tratan los datos en la IA</a>.</p>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Al solicitar la generación, se enviarán el nombre, giro y régimen de la organización y la cuenta seleccionada a {{ privacidad.proveedor_ia }}{% if privacidad.respaldo_ia %} o al respaldo {{ privacidad.respaldo_ia }}{% endif %}, con posible procesamiento fuera de México. Usa descripciones genéricas y evita datos sensibles o de terceros sin autorización. <a class="underline text-brand-700" href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta cómo se tratan los datos en la IA</a>. El uso en servicios remunerados requiere revisión profesional conforme a las <a class="underline text-brand-700" href="{% url 'condiciones_uso' %}" target="_blank" rel="noopener">condiciones de uso comercial</a>.</p>
             {% else %}
             <div class="text-center py-8">
                 <p class="text-gray-500 mb-3">No hay cuentas aún</p>
                 <a href="{% url 'agregar_cuenta' %}" class="text-brand-600 text-sm hover:underline">Ir a alta e importación →</a>
             </div>
             {% endif %}
-        </form>
+        </form>{% else %}<div class="bg-white rounded-xl border p-6"><h2 class="font-semibold">Acceso de consulta</h2><p class="text-sm text-gray-500 mt-2">Puedes consultar y exportar los manuales de esta organización. Solicita al propietario un rol de edición para generar o modificar documentos.</p></div>{% endif %}
     </div>
 
     <!-- Columna derecha: Manuales existentes -->
@@ -127,8 +134,8 @@
 
 {% block extra_scripts %}
 <script src="{% static 'js/manual-account-search.js' %}" defer></script>
-<script src="{% static 'js/manual-confirmation.js' %}?v=personalizados-5" defer></script>
+<script src="{% static 'js/manual-confirmation.js' %}?v=recuperacion-2" defer></script>
 {% if not usar_sat %}<script src="{% static 'js/manual_vinculos.js' %}?v=2" defer></script>
 <script src="{% static 'js/manual_modal_vinculo.js' %}" defer></script>{% endif %}
-<script src="{% static 'js/manual-progress.js' %}?v=personalizados-5" defer></script>
+<script src="{% static 'js/manual-progress.js' %}?v=recuperacion-2" defer></script>
 {% endblock %}

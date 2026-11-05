@@ -1,0 +1,2 @@
+{% extends "panel/base.html" %}
+{% block content %}<section class="card"><p><a href="{% url 'panel:biblioteca' %}">← Fuentes y fundamentos</a></p><p>Documenta la edición consultada, la vigencia y los permisos. No pegues contenido protegido sin autorización. Publicar exige una revisión explícita.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Guardar revisión</button></form></section>{% endblock %}

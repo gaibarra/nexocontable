@@ -1,0 +1,15 @@
+{% extends "base_app.html" %}
+{% block title %}Fundamentos y revisión — {{ manual.titulo }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-5">
+<a class="underline" href="{% url 'detalle_manual' manual.pk %}">← Volver al manual</a>
+<h1 class="text-2xl font-bold">Fundamentos y revisión profesional</h1>
+<p>{{ manual.titulo }} · {{ manual.tenant.nombre }}</p>
+<p>Consulta una fuente autorizada y documenta su aplicación al caso. No cargues libros protegidos. Registrar una verificación no publica un criterio para otros usuarios.</p>
+{% for p in pendientes %}<div class="border border-amber-300 rounded-xl p-4"><strong>{{ p.titulo }}</strong><p>{{ p.motivo }}</p></div>{% empty %}<p class="p-4 border rounded-xl">No hay pendientes documentales abiertos para esta versión. La aprobación sigue sujeta a los controles técnicos y al juicio profesional.</p>{% endfor %}
+{% if editable and pendientes %}<form method="post" class="bg-white p-5 rounded-xl border space-y-4">{% csrf_token %}{{ form.as_p }}<button class="gradient-bg text-white px-4 py-3 rounded-lg">Registrar verificación</button></form>{% endif %}
+{% if editable and not manual.aprobado %}<form method="post" action="{% url 'aprobar_manual' manual.pk %}">{% csrf_token %}<button class="gradient-bg text-white px-4 py-3 rounded-lg">Aprobar versión revisada</button></form>{% endif %}
+<h2 class="text-xl font-bold">Historial de revisión</h2>
+{% for r in historial %}<div class="border rounded-xl p-4 break-words"><p>{{ r.get_tipo_display }} · {{ r.fecha|date:"d/m/Y H:i" }} · {{ r.autor|default:'Sistema' }}</p><p class="text-xs break-all">Huella: {{ r.huella }}</p>{% if r.tipo == 'reformulacion' %}<p>{{ r.evidencia.motivo }}</p><details class="mt-3"><summary class="cursor-pointer font-medium">Consultar versión anterior conservada</summary><p class="mt-2">{{ r.evidencia.titulo_anterior }}</p><pre class="text-xs whitespace-pre-wrap break-words mt-3 p-3 bg-slate-50 rounded-lg">{{ r.evidencia.contenido_anterior }}</pre></details>{% endif %}{% if r.evidencia.norma %}<p>{{ r.evidencia.norma }} · {{ r.evidencia.edicion }} · {{ r.evidencia.localizacion }} · Consulta: {{ r.evidencia.fecha_consulta }}</p><p>{{ r.evidencia.nota }}</p>{% endif %}</div>{% empty %}<p>Sin verificaciones documentadas en este sistema.</p>{% endfor %}
+</div>
+{% endblock %}

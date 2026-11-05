@@ -4,6 +4,8 @@ from . import password_reset
 from .privacidad import aviso_privacidad
 
 urlpatterns = [
+    path('condiciones-de-uso/', views.condiciones_uso, name='condiciones_uso'),
+    path('uso-y-seguridad/', views.uso_seguridad, name='uso_seguridad'),
     path('aviso-de-privacidad/', aviso_privacidad, name='aviso_privacidad'),
     path('recuperar-contrasena/', password_reset.RecuperarPasswordView.as_view(), name='password_reset'),
     path('recuperar-contrasena/enviado/', password_reset.RecuperarPasswordDoneView.as_view(), name='password_reset_done'),

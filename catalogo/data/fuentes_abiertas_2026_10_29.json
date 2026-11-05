@@ -1,0 +1,28 @@
+[
+  {
+    "volumen": 1,
+    "titulo": "Intermediate Financial Accounting, Volume 1",
+    "autores": "Glenn Arnold y Suzanne Kyle; Lyryx Learning",
+    "edicion": "2021-A",
+    "publicacion": "2020-12-15",
+    "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/891/3/ArnoldKyle-IntermFinAcct-Vol1-2021A.pdf",
+    "sha256": "4d88ac554ac7f851c4f8ca970fbd398929a9cc5f8a08f0212c7578641ff6dce4",
+    "licencia": "CC BY 4.0",
+    "url_licencia": "https://creativecommons.org/licenses/by/4.0/",
+    "localizacion_licencia": "Preliminares License y Attribution, páginas PDF 5 y 7",
+    "alcance": "Explicaciones educativas propias adaptadas al español y ejemplos nuevos para contexto mexicano. No se incorporan citas textuales de normas de terceros ni se presenta el libro como NIF mexicana vigente. Alcance revisado 2026-11-05: se excluye íntegramente la sección 6.6 / Appendix A, con licencia CC BY-NC-SA 3.0, y los textos de normas o terceros con licencia diferente. Los permisos registrados se aplican solo a los pasajes CC BY 4.0 expresamente identificados en cada criterio; no al PDF íntegro."
+  },
+  {
+    "volumen": 2,
+    "titulo": "Intermediate Financial Accounting, Volume 2",
+    "autores": "Glenn Arnold y Suzanne Kyle; Lyryx Learning",
+    "edicion": "2021-A",
+    "publicacion": "2020-12-15",
+    "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/892/3/ArnoldKyle-IntermFinAcct-Vol2-2021A.pdf",
+    "sha256": "a18325d311f80b49b3292c4c7ead074291efa0d59468785ad543ba9707bd6256",
+    "licencia": "CC BY 4.0",
+    "url_licencia": "https://creativecommons.org/licenses/by/4.0/",
+    "localizacion_licencia": "Preliminares License y Attribution, páginas PDF 5 y 7",
+    "alcance": "Explicaciones educativas propias adaptadas al español y ejemplos nuevos para contexto mexicano. No se incorporan citas textuales de normas de terceros ni se presenta el libro como NIF mexicana vigente."
+  }
+]

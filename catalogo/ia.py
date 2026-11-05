@@ -1,5 +1,6 @@
 """Proveedores de IA configurados exclusivamente en el servidor."""
 import logging
+import time
 
 from django.conf import settings
 from openai import OpenAI, APIError, APIConnectionError, RateLimitError
@@ -41,7 +42,7 @@ def _consumo(response, proveedor, modelo, completo):
             'resultado': 'completo' if completo else 'incompleto'}
 
 
-def generar_texto(system_prompt, prompt):
+def generar_texto(system_prompt, prompt, *, formato_json=False, presupuesto_segundos=None):
     proveedores = {
         'openai': (settings.OPENAI_API_KEY, settings.OPENAI_MODEL,
                    settings.OPENAI_MAX_TOKENS, 'https://api.openai.com/v1'),
@@ -55,9 +56,13 @@ def generar_texto(system_prompt, prompt):
         logger.error('Configuración de proveedor de IA inválida')
         raise ManualGenerationError('El servicio de IA requiere configuración. Contacta al administrador.')
 
+    limite = time.monotonic() + presupuesto_segundos if presupuesto_segundos is not None else None
     consumos = []
     mensaje = 'No se pudo generar el manual. Intenta más tarde o contacta al administrador.'
     for nombre in orden:
+        restante = limite - time.monotonic() if limite is not None else settings.AI_TIMEOUT_SECONDS
+        if restante <= 1:
+            break
         clave, modelo, max_tokens, base_url = proveedores[nombre]
         if not clave:
             logger.warning('Proveedor de IA sin clave: %s', nombre)
@@ -65,8 +70,10 @@ def generar_texto(system_prompt, prompt):
         try:
             # Sin reintentos internos: el respaldo debe caber en el tiempo de la petición web.
             with OpenAI(api_key=clave, base_url=base_url,
-                        timeout=settings.AI_TIMEOUT_SECONDS, max_retries=0) as client:
+                        timeout=min(settings.AI_TIMEOUT_SECONDS, restante), max_retries=0) as client:
                 opciones = {}
+                if formato_json:
+                    opciones["response_format"] = {"type": "json_object"}
                 if nombre == 'deepseek':
                     # El modo de razonamiento está activo por defecto y comparte
                     # el presupuesto de salida. Aquí necesitamos el manual final.
@@ -76,7 +83,7 @@ def generar_texto(system_prompt, prompt):
                     messages=[{'role': 'system', 'content': system_prompt},
                               {'role': 'user', 'content': prompt}],
                     max_tokens=max_tokens,
-                    temperature=0.5,
+                    temperature=0.2 if formato_json else 0.5,
                     **opciones,
                 )
             choice = response.choices[0] if response.choices else None

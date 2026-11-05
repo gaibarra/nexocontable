@@ -1,18 +1,22 @@
+from .revision_tecnica import revisar_contenido
 import logging
 from types import SimpleNamespace
-from .sat import asegurar_catalogo_sat
+from .sat import asegurar_catalogo_sat, codigos_oficiales, codigo_sat_canonico, ids_sat_equivalentes
 from .forms import ImportarCatalogoForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponsePermanentRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q, Count
 from django.template.loader import render_to_string
 from django.utils.text import slugify
+from django.utils import timezone
+from .biblioteca import pendientes_manual
 from django.urls import reverse
 from cuentas.models import Tenant
 from django.core.paginator import Paginator
@@ -28,6 +32,7 @@ from cuentas.marca_views import puede_personalizar
 from django.core import signing
 import hashlib
 import json
+import uuid
 from .prompts import build_manual_prompts
 from .ia import generar_texto, ManualGenerationError
 from .forms import CatalogoPlantillaForm, CatalogoPlantillaCuentaFormSet
@@ -347,8 +352,8 @@ def buscar_manual_existente(tenant, cuentas, usar_sat):
     cuentas = list(cuentas)
     if len(cuentas) == 1:
         cuenta = cuentas[0]
-        sat_id = cuenta.codigoagrupador.pk if usar_sat else cuenta.codigoagrupador_id
-        match = (Q(codigos_sat__pk=sat_id) | Q(cuentas__codigoagrupador_id=sat_id)) if usar_sat else (Q(cuentas__pk=cuenta.pk) | Q(codigos_sat__pk=sat_id))
+        sat_ids = ids_sat_equivalentes(cuenta.codigoagrupador) if cuenta.codigoagrupador else []
+        match = (Q(codigos_sat__pk__in=sat_ids) | Q(cuentas__codigoagrupador_id__in=sat_ids)) if usar_sat else (Q(cuentas__pk=cuenta.pk) | Q(codigos_sat__pk__in=sat_ids))
         return (ManualContable.objects.filter(tenant=tenant).filter(match).distinct()
                 .order_by('-aprobado', '-fecha_creacion', '-pk').first())
     relation = 'codigos_sat' if usar_sat else 'cuentas'
@@ -373,6 +378,7 @@ def advertir_manual_existente(request, manual):
 def estados_manuales_por_cuenta(tenant, cuentas, usar_sat):
     """Mismo alcance del bloqueo del servidor, con consultas agrupadas por organización."""
     propias, sat_directo, sat_total = {}, {}, {}
+    claves_sat = {pk: codigo_sat_canonico(valor) for pk, valor in CodigoAgrupador.objects.values_list('pk', 'codigoagrupador')}
     for manual in (ManualContable.objects.filter(tenant=tenant)
                    .order_by('-aprobado', '-fecha_creacion', '-pk')
                    .prefetch_related('cuentas', 'codigos_sat')):
@@ -380,16 +386,16 @@ def estados_manuales_por_cuenta(tenant, cuentas, usar_sat):
                  'url': reverse('detalle_manual', args=[manual.pk])}
         for cuenta in manual.cuentas.all():
             propias.setdefault(cuenta.pk, datos)
-            sat_total.setdefault(cuenta.codigoagrupador_id, datos)
+            sat_total.setdefault(claves_sat.get(cuenta.codigoagrupador_id), datos)
         for codigo in manual.codigos_sat.all():
-            sat_directo.setdefault(codigo.pk, datos)
-            sat_total.setdefault(codigo.pk, datos)
+            sat_directo.setdefault(codigo_sat_canonico(codigo.codigoagrupador), datos)
+            sat_total.setdefault(codigo_sat_canonico(codigo.codigoagrupador), datos)
     resultado = {}
     for cuenta in cuentas:
         if usar_sat:
-            candidatos = [sat_total.get(cuenta.codigoagrupador.pk)]
+            candidatos = [sat_total.get(codigo_sat_canonico(cuenta.codigoagrupador.codigoagrupador))]
         else:
-            candidatos = [propias.get(cuenta.pk), sat_directo.get(cuenta.codigoagrupador_id)]
+            candidatos = [propias.get(cuenta.pk), sat_directo.get(claves_sat.get(cuenta.codigoagrupador_id))]
         candidatos = [dato for dato in candidatos if dato]
         if candidatos:
             resultado[str(cuenta.id)] = next((dato for dato in candidatos if dato['estado'] == 'aprobado'), candidatos[0])
@@ -397,6 +403,7 @@ def estados_manuales_por_cuenta(tenant, cuentas, usar_sat):
 
 
 @login_required
+@never_cache
 def generar_manual(request):
     """Vista principal para generar manuales contables con IA."""
     tenant = request.tenant
@@ -407,7 +414,7 @@ def generar_manual(request):
     asegurar_catalogo_sat()
     usar_sat = not cuentas.exists()
     cuentas_sat = [SimpleNamespace(id=f'sat:{c.pk}', cuenta=c.codigoagrupador,
-                   descripcion=c.nombre, codigoagrupador=c) for c in CodigoAgrupador.objects.all()] if usar_sat else []
+                   descripcion=c.nombre, codigoagrupador=c) for c in CodigoAgrupador.objects.filter(codigoagrupador__in=codigos_oficiales())] if usar_sat else []
     manuales = ManualContable.objects.filter(tenant=tenant).order_by('-fecha_creacion')
 
     if request.method == 'POST':
@@ -449,17 +456,29 @@ def generar_manual(request):
         try:
             contenido_generado = generar_contenido_manual(cuentas_seleccionadas, tenant)
         except ManualGenerationError as exc:
-            registrar_uso(exc, request.user, tenant)
-            messages.error(request, str(exc))
+            registro_fallido = registrar_uso(exc, request.user, tenant)
+            from panel.audit import registrar
+            codigo = getattr(exc, 'codigo', 'proveedor_no_disponible')
+            referencia_incidente = 'GEN-'+str(registro_fallido.pk) if registro_fallido else 'GEN-'+uuid.uuid4().hex[:12].upper()
+            registrar("fuentes", "generacion.rechazada", actor=request.user.pk, organizacion_id=tenant.pk,
+                      referencia=referencia_incidente, detalle="Causa: "+codigo)
+            if getattr(exc, 'incidente_generacion', False):
+                cuenta = cuentas_seleccionadas[0]
+                request.session['manual_generacion_pendiente'] = {
+                    'tenant': tenant.pk, 'usuario': request.user.pk,
+                    'cuenta': str(cuenta.id), 'nombre': str(cuenta.cuenta)+' — '+str(cuenta.descripcion),
+                    'referencia': referencia_incidente,
+                    'fecha': timezone.now().timestamp(),
+                }
+            else:
+                messages.error(request, str(exc))
             return redirect('generar_manual')
 
+        request.session.pop('manual_generacion_pendiente', None)
         registro_ia = registrar_uso(contenido_generado, request.user, tenant)
         if contenido_generado:
-            titulo = "Manual: " + ", ".join(
-                [c.cuenta for c in cuentas_seleccionadas[:3]]
-            )
-            if len(cuentas_seleccionadas) > 3:
-                titulo += f" (+{len(cuentas_seleccionadas) - 3} más)"
+            from .perfil_contable import titulo_cuenta
+            titulo = titulo_cuenta(cuentas_seleccionadas[0])
 
             # Serializa solo el guardado por organización; la llamada de IA queda fuera
             # de la transacción. Otro envío simultáneo puede haber terminado primero.
@@ -474,6 +493,8 @@ def generar_manual(request):
                 manual = ManualContable.objects.create(
                     tenant=tenant, titulo=titulo, contenido=contenido_generado,
                     creado_por=request.user,
+                    fundamentos_snapshot=getattr(contenido_generado, "fundamentos_snapshot", {}),
+                    fecha_referencia=getattr(contenido_generado, "fundamentos_snapshot", {}).get("fecha"),
                 )
                 if usar_sat:
                     manual.codigos_sat.set([c.codigoagrupador for c in cuentas_seleccionadas])
@@ -483,6 +504,12 @@ def generar_manual(request):
                     registro_ia.manual = manual
                     registro_ia.manual_generado = True
                     registro_ia.save(update_fields=['manual', 'manual_generado'])
+            if any(c.get('revision_tecnica') == 'rechazado' for c in getattr(contenido_generado, 'consumos', [])):
+                from panel.audit import registrar
+                registrar('fuentes', 'generacion.corregida', actor=request.user.pk, organizacion_id=tenant.pk, referencia=manual.pk, detalle='Corrección automática completada antes de guardar el borrador.')
+            if manual.fundamentos_snapshot.get("pendientes"):
+                from panel.audit import registrar
+                registrar("fuentes", "cobertura.pendiente", actor=request.user.pk, organizacion_id=tenant.pk, referencia=manual.pk, detalle="Requiere verificación documentada antes de aprobar.")
             if registro_ia:
                 return redirect(f"{reverse('generar_manual')}?reporte={registro_ia.pk}#reporte-ia")
             messages.success(request, 'Manual generado exitosamente con IA.')
@@ -512,7 +539,14 @@ def generar_manual(request):
         registro_ia = UsoIA.objects.select_related('manual').filter(
             pk=reporte_id, usuario=request.user, tenant=tenant, manual_generado=True).first()
 
+    incidencia = request.session.get('manual_generacion_pendiente')
+    if incidencia and (incidencia.get('tenant') != tenant.pk or incidencia.get('usuario') != request.user.pk
+                       or timezone.now().timestamp() - incidencia.get('fecha', 0) > 1800):
+        incidencia = None
+        request.session.pop('manual_generacion_pendiente', None)
     return render(request, 'catalogo/generar_manual.html', {
+        'incidencia_generacion': incidencia,
+        'fecha_referencia': timezone.localdate(),
         'reporte_ia': reporte_uso(registro_ia),
         'resumen_ia': resumen_uso(request.user),
         'cuentas': cuentas_sat if usar_sat else cuentas,
@@ -530,8 +564,18 @@ def generar_contenido_manual(cuentas, tenant):
     cuentas = list(cuentas)
     if len(cuentas) != 1:
         raise ManualGenerationError('Selecciona una sola cuenta para generar un manual completo.')
-    system_prompt, prompt = build_manual_prompts(cuentas, tenant)
-    return generar_texto(system_prompt, prompt)
+    from .biblioteca import activa, seleccionar
+    from .generacion_controlada import generar_revisado
+    snapshot = seleccionar(cuentas[0], tenant) if activa() else None
+    system_prompt, prompt = build_manual_prompts(cuentas, tenant, biblioteca_snapshot=snapshot)
+    if snapshot is not None:
+        return generar_revisado(system_prompt, prompt, snapshot, tenant.regimen_fiscal,
+                                proveedor=generar_texto)
+    resultado = generar_texto(system_prompt, prompt)
+    hallazgos = revisar_contenido(str(resultado), getattr(tenant, 'regimen_fiscal', ''))
+    if hallazgos:
+        raise ManualGenerationError('El borrador requiere corregir fundamentos antes de guardarse. '+ ' '.join(h['mensaje'] for h in hallazgos), consumos=getattr(resultado,'consumos',[]))
+    return resultado
 
 
 # =========================================
@@ -539,22 +583,27 @@ def generar_contenido_manual(cuentas, tenant):
 # =========================================
 
 @login_required
+@never_cache
 def detalle_manual(request, pk):
     """Ver detalle de un manual."""
     manual = get_object_or_404(ManualContable, pk=pk, tenant=request.tenant)
     return render(request, 'catalogo/detalle_manual.html', {
+        'reformulacion_local': manual.fundamentos_snapshot.get('origen_reformulacion', {}).get('metodo', ''),
+        'pendientes_fundamentos': pendientes_manual(manual),
         'manual': manual, 'imprimir': request.GET.get('imprimir') == '1',
         'presentacion': contexto_presentacion(datos_manual(manual)),
         'composicion_documento': componer_manual(manual),
+        'hallazgos_tecnicos': revisar_contenido(manual.contenido, manual.tenant.regimen_fiscal),
         'puede_personalizar': puede_personalizar(request.user, manual.tenant),
         'ultimo_cambio_presentacion': manual.cambios_presentacion.select_related('autor').first(),
-        'reporte_ia': reporte_uso(manual.usos_ia.filter(manual_generado=True).first()),
+        'reporte_ia': None if manual.fundamentos_snapshot.get('origen_reformulacion') else reporte_uso(manual.usos_ia.filter(manual_generado=True).first()),
         'resumen_ia': resumen_uso(request.user),
     })
 
 
 @login_required
 @require_http_methods(["GET"])
+@never_cache
 def exportar_manual(request, pk):
     """Word nativo con logos integrados y contenido sanitizado."""
     manual = get_object_or_404(ManualContable, pk=pk, tenant=request.tenant)
@@ -568,14 +617,17 @@ def exportar_manual(request, pk):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@never_cache
 def editar_manual(request, pk):
     """Editar un manual existente."""
     manual = get_object_or_404(ManualContable, pk=pk, tenant=request.tenant)
 
     if request.method == 'POST':
-        manual.titulo = request.POST.get('titulo', manual.titulo)
-        manual.contenido = request.POST.get('contenido', manual.contenido)
-        manual.save()
+        with transaction.atomic():
+            manual = ManualContable.objects.select_for_update().get(pk=manual.pk, tenant=request.tenant)
+            manual.titulo = request.POST.get('titulo', manual.titulo)
+            manual.contenido = request.POST.get('contenido', manual.contenido)
+            manual.save()
         messages.success(request, 'Manual actualizado.')
         return redirect('detalle_manual', pk=manual.pk)
 
@@ -600,7 +652,19 @@ def aprobar_manual(request, pk):
         manual = get_object_or_404(ManualContable.objects.select_for_update(), pk=pk, tenant=request.tenant)
         if not puede_personalizar(request.user, manual.tenant):
             raise PermissionDenied
+        from .revision_tecnica import revisar_contenido
+        if revisar_contenido(manual.contenido, manual.tenant.regimen_fiscal):
+            messages.error(request, 'Corrige los hallazgos técnicos antes de aprobar este borrador. La aprobación requiere revisión profesional.')
+            return redirect('detalle_manual', pk=manual.pk)
+        from .biblioteca import activa, pendientes_manual, huella
+        if (activa() or manual.fundamentos_snapshot) and pendientes_manual(manual):
+            messages.warning(request, 'Documenta la verificación de los fundamentos pendientes antes de aprobar.')
+            return redirect('revisar_fundamentos', pk=manual.pk)
         if not manual.aprobado:
+            from .models import RevisionFundamentos
+            RevisionFundamentos.objects.create(manual=manual, autor=request.user, huella=huella(manual), tipo='aprobacion', evidencia={'fuentes': [f['id'] for f in manual.fundamentos_snapshot.get('fuentes', [])]})
+            from panel.audit import registrar
+            registrar('fuentes', 'manual.aprobacion_documentada', actor=request.user.pk, organizacion_id=manual.tenant_id, referencia=manual.pk, detalle=huella(manual))
             manual.presentacion_snapshot = construir_presentacion(manual.tenant)
             manual.aprobado = True
             ManualContable.objects.filter(pk=manual.pk).update(

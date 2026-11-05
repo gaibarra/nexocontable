@@ -1,22 +1,24 @@
 {% extends "base_app.html" %}
 {% load markdown_filters static %}
-{% block title %}{{ manual.titulo }} — {{ presentacion.empresa_nombre }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/documentos.css' %}?v=3">{% endblock %}
+{% block title %}{{ composicion_documento.titulo }} — {{ presentacion.empresa_nombre }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/documentos.css' %}?v=editorial-1">{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto print:max-w-none">
     {% include "catalogo/reporte_ia.html" with es_detalle=True %}
     <div class="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6 no-print">
         <div class="min-w-0">
             <a href="{% url 'generar_manual' %}" class="text-brand-600 text-sm hover:underline">← Volver a manuales</a>
-            <h1 class="text-2xl font-bold mt-2">{{ manual.titulo }}</h1>
+            <h1 class="text-2xl font-bold mt-2">{{ composicion_documento.titulo }}</h1>
             <p class="text-sm text-gray-500 mt-2">Revisa el contenido y sus supuestos en el contexto del giro y régimen fiscal de {{ manual.tenant.nombre }}.</p>
             <p class="text-gray-500 text-sm mt-2">{{ manual.fecha_creacion|date:"d/M/Y H:i" }} · {% if manual.aprobado %}Aprobado · Presentación conservada{% else %}Pendiente de aprobación{% endif %}</p>
+            {% if reformulacion_local %}<p class="text-xs text-gray-500 mt-2">Versión reformulada localmente. Puedes consultar el original en Fundamentos y revisión.</p>{% endif %}
             {% if ultimo_cambio_presentacion %}<p class="text-xs text-gray-500 mt-2">Presentación actualizada el {{ ultimo_cambio_presentacion.fecha|date:"d/m/Y H:i" }}{% if ultimo_cambio_presentacion.autor %} por {{ ultimo_cambio_presentacion.autor.get_full_name|default:ultimo_cambio_presentacion.autor.username }}{% endif %}.</p>{% endif %}
         </div>
         <div class="flex flex-wrap gap-2 no-print">
+<a href="{% url 'revisar_fundamentos' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Fundamentos y revisión</a>
             <a href="{% url 'exportar_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Exportar Word</a>
             <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold">Imprimir / PDF</button>
-            <a href="{% url 'editar_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Editar</a>
+            {% if request.user_rol != 'solo_lectura' %}<a href="{% url 'editar_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Editar</a>{% endif %}
             {% if puede_personalizar %}
                 {% if manual.aprobado %}
                 <a href="{% url 'actualizar_presentacion_manual' manual.pk %}" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Actualizar presentación</a>
@@ -27,15 +29,19 @@
             {% endif %}
         </div>
     </div>
+    {% if hallazgos_tecnicos %}<aside class="no-print mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" role="alert"><strong>Borrador con hallazgos técnicos: requiere corrección antes de aprobar.</strong><ul class="list-disc pl-5 mt-2">{% for hallazgo in hallazgos_tecnicos %}<li>{{ hallazgo.mensaje }}</li>{% endfor %}</ul></aside>{% endif %}
     <table class="document-layout" role="presentation">
         <thead><tr><td><div class="document-running-header">{% include "documentos/encabezado.html" with compacto=True %}</div></td></tr></thead>
         <tbody><tr><td>
-    <article class="document-paper">
+    <article class="document-paper document-professional">
         <div class="document-brand-screen">{% include "documentos/encabezado.html" %}</div>
         {% if presentacion.bloques|length == 1 and presentacion.bloques.0.rol == 'Elaborado por' %}<p class="document-company">Empresa: {{ presentacion.empresa_nombre }}</p>{% endif %}
+        <p class="document-eyebrow">MANUAL CONTABLE · POLÍTICAS Y PROCEDIMIENTOS</p>
         <h2 class="document-title">{{ composicion_documento.titulo }}</h2>
-        <p class="text-xs text-gray-500 mt-2 mb-3">{{ manual.fecha_creacion|date:"d/m/Y" }} · {% if manual.aprobado %}Aprobado{% else %}Pendiente de aprobación{% endif %}</p>
+        <p class="document-meta">{{ manual.fecha_creacion|date:"d/m/Y" }} · {% if manual.aprobado %}Aprobado{% else %}Pendiente de aprobación{% endif %}</p>
         {% if composicion_documento.alcance %}<p class="document-scope">{% for cuenta in composicion_documento.alcance %}{{ cuenta.clave }} — {{ cuenta.descripcion }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+        {% if manual.aprobado %}<p class="text-xs text-gray-500 mt-2">Documento preparado con apoyo de inteligencia artificial.</p>{% endif %}
+        {% if not manual.aprobado %}<p class="document-draft-note">Borrador preparado con apoyo de IA. Requiere revisión contable, fiscal y de referencias antes de entregarse a clientes.</p>{% endif %}
         <div class="prose prose-lg max-w-none print:prose-sm">{{ composicion_documento.contenido_html|safe }}</div>
     </article>
         </td></tr></tbody>

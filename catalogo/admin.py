@@ -34,7 +34,12 @@ class ManualContableAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'creado_por', 'fecha_creacion', 'aprobado')
     list_filter = ('aprobado', 'fecha_creacion')
     search_fields = ('titulo', 'contenido')
-    readonly_fields = ('fecha_creacion', 'presentacion_snapshot')
+    readonly_fields = ('fecha_creacion', 'presentacion_snapshot', 'fundamentos_snapshot', 'fecha_referencia',
+                       'aprobado', 'tenant', 'creado_por', 'cuentas', 'codigos_sat')
+
+    def has_add_permission(self, request):
+        # La creación y aprobación utilizan el flujo documentado de la aplicación.
+        return False
 
 
 from .models import UsoIA

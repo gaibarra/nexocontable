@@ -64,3 +64,15 @@ private_media/
 panel.sock
 panel.pid
 .panel-start.lock
+
+# Herramientas locales de revisión de documentos (sin distribuir).
+.qa-tools/
+
+# Evidencias y respaldos privados de la biblioteca.
+output/biblioteca/
+
+# Documentos exportados y evidencias locales de revisión (sin publicar).
+/*.pdf
+/*.docx
+output/revision_calidad/
+*.pid

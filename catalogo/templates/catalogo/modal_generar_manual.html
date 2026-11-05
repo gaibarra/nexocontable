@@ -10,7 +10,8 @@
         <div><dt>Giro</dt><dd>{{ request.tenant.get_giro_display }}</dd></div>
         <div><dt>Régimen fiscal</dt><dd>{{ request.tenant.get_regimen_fiscal_display }}</dd></div>
     </dl>
-    <div class="manual-preview-scope"><strong>Personalizado para esta organización</strong><p>El giro y régimen fiscal orientan los casos y ejemplos de la cuenta. Las NIF mexicanas y NIIF/IFRS aplicables aportan el sustento contable. Revisa las referencias y los supuestos para ajustarlos a la operación real de tu cliente.</p></div>
+    <p class="text-xs text-slate-500 p-4">Fecha de referencia de los fundamentos: {{ fecha_referencia|date:"d/m/Y" }}. Las referencias pendientes requerirán verificación profesional documentada antes de aprobar.</p>
+    <div class="manual-preview-scope"><strong>Personalizado para esta organización</strong><p>El giro y régimen fiscal orientan los casos y ejemplos de la cuenta. El marco contable aplicable requiere revisión; las referencias NIF o NIIF no consultadas en fuente autorizada quedarán pendientes. Revisa los fundamentos y supuestos para ajustarlos a la operación real de tu cliente.</p></div>
     <p class="manual-preview-privacy">La generación usa IA y requiere revisión profesional. <a href="{% url 'aviso_privacidad' %}#ia" target="_blank" rel="noopener">Consulta el uso de tus datos.</a></p>
     </div>
     <div class="manual-confirmation-actions"><button type="button" data-manual-cancel>Volver a elegir</button><a data-manual-existing-link hidden>Ver manual</a><button type="button" data-manual-confirm class="gradient-bg">Generar manual</button></div>
